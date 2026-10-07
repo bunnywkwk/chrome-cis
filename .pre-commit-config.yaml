@@ -1,0 +1,23 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace # removes spaces at line ends
+      - id: end-of-file-fixer # adds the missing final newline
+      - id: check-added-large-files # stops big files (e.g. a PDF) from being committed
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint # uses your .yamllint
+
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v26.9.0
+    hooks:
+      - id: ansible-lint # uses your .ansible-lint
+        language_version: python3.12
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks # blocks commits containing private keys or passwords

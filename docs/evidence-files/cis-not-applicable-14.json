@@ -1,0 +1,16 @@
+{
+  "CertificateTransparencyEnforcementDisabledForLegacyCas": [],
+  "ThirdPartyBlockingEnabled": true,
+  "DefaultThirdPartyStoragePartitioningSetting": 2,
+  "ThirdPartyStoragePartitioningBlockedForOrigins": ["https://example.com"],
+  "ExtensionManifestV2Availability": 3,
+  "CloudPrintProxyEnabled": false,
+  "RemoteAccessHostAllowUiAccessForRemoteAssistance": false,
+  "FirstPartySetsEnabled": false,
+  "CloudAPAuthEnabled": true,
+  "EnforceLocalAnchorConstraintsEnabled": true,
+  "InsecureHashesInTLSHandshakesEnabled": false,
+  "RendererAppContainerEnabled": true,
+  "ChromeCleanupReportingEnabled": false,
+  "SafeBrowsingForTrustedSourcesEnabled": false
+}
