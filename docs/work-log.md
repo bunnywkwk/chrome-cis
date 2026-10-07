@@ -1,4 +1,4 @@
-# Work log: chrome-cis
+# Work log: chrome_cis
 
 One entry per working day: what was covered, why, and where the result is. For the full detail follow the links.
 
@@ -27,4 +27,10 @@ One entry per working day: what was covered, why, and where the result is. For t
 gives Windows registry checks. CIS itself says "Adjustments/tailoring… will be needed" outside that setup. So each
 rule's Linux equivalent (the Chrome policy) must be proven on each RHEL version, not assumed.
 
-**Next:** design decisions (`design-decisions.md`); then build. Optional: load `cis-not-applicable-14.json` to prove the last 5 N/A rules.
+| 17 | Wrote the **design decisions** (draft) | every build choice with its reason and evidence, reviewed before code | [design-decisions.md](design-decisions.md): D1–D14 |
+
+| 18 | Renamed the folder to `chrome_cis`; Claude wrote `meta/`, `defaults/`, `vars/` (118-rule list) and the **build guide** | the user types `tasks/` from the guide | [build-guide.md](build-guide.md): full path tested in Rocky 8/9/10 containers: install, 65-policy file, rerun `changed=0`, Level 2, conflicts, check mode |
+
+| 19 | Wrap-up: updated root `CLAUDE.md` (chrome_cis active), copied it to `docs/CLAUDE.md`, wrote the **session handoff** | continue on another machine or in a new session with the same context | [session-handoff.md](session-handoff.md), [CLAUDE.md](CLAUDE.md) |
+
+**Next:** type batches 1–5 from the build guide; test on the VMs (from `pre-chrome`).

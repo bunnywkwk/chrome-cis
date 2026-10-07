@@ -1,3 +1,145 @@
-#SPDX-License-Identifier: MIT-0
 ---
-# defaults file for chrome-cis
+# chrome_cis: harden Google Chrome on RHEL 8/9/10 to the CIS Google Chrome Benchmark v3.0.0.
+# Every variable here can be set in group_vars. Decisions: docs/design-decisions.md (Dn).
+# Switches are plain YAML booleans; on the command line use JSON: -e '{"chrome_cis_level_2": true}'.
+
+# Install (D9, D10)
+chrome_cis_install: false        # true = import Google's key, add its repo, install google-chrome-<channel>
+chrome_cis_channel: stable       # stable, beta, unstable, canary
+
+# Profiles (D4): a Level 1 rule needs chrome_cis_level_1, a Level 2 rule needs chrome_cis_level_2.
+# CIS Level 2 = Level 1 + Level 2, so for Level 2 keep both true.
+chrome_cis_level_1: true
+chrome_cis_level_2: false
+
+# Site values (D6): null or [] = report only; set a value and the role writes the policy.
+chrome_cis_safe_browsing_protection_level: null   # 1.2.2: 1 (standard) or 2 (enhanced)
+chrome_cis_variations: null                       # 1.9: 0 (all variations, the CIS value)
+chrome_cis_password_manager_enabled: null         # 2.6.1: true or false
+chrome_cis_remote_access_connections: null        # 2.8.1: true or false (CIS: false)
+chrome_cis_remote_access_client_domains: []       # 2.8.3: e.g. ["example.com"]
+chrome_cis_proxy_mode: null                       # 2.17: "direct" or "system" (never auto_detect)
+chrome_cis_http_allowlist: []                     # 2.27: HTTP-only hosts, e.g. ["intranet.example.com"]
+chrome_cis_clipboard_allowed_urls: []             # 4.2.3: e.g. ["https://app.example.com"]
+chrome_cis_clipboard_blocked_urls: []             # 4.2.4
+chrome_cis_window_management_allowed_urls: []     # 4.2.7 (L2)
+chrome_cis_window_management_blocked_urls: []     # 4.2.8 (L2)
+# Allowlists for two risky blocklists (only written when the rule is on):
+chrome_cis_extension_allowlist: []                # 2.3.3: extension IDs still allowed, e.g. a password manager
+chrome_cis_native_messaging_allowlist: []         # 2.5.1: native messaging hosts still allowed
+
+# Rule toggles (D5): one per applicable rule. Not-applicable rules (D8) have none.
+# WARNING: the rules marked WARNING below break things users rely on. They are off by default (D5);
+# switch one on by name only after checking its effect, e.g. chrome_cis_rule_4_4: true
+
+# Section 1: Enforced Defaults
+chrome_cis_rule_1_1_1: true
+chrome_cis_rule_1_2_1: true
+chrome_cis_rule_1_2_2: true
+chrome_cis_rule_1_3: true
+chrome_cis_rule_1_4: true
+chrome_cis_rule_1_5: true
+chrome_cis_rule_1_6: true
+chrome_cis_rule_1_7: true
+chrome_cis_rule_1_8: true
+chrome_cis_rule_1_9: true
+chrome_cis_rule_1_11: true
+chrome_cis_rule_1_12: true
+chrome_cis_rule_1_13: true
+chrome_cis_rule_1_14: true
+chrome_cis_rule_1_15: true
+chrome_cis_rule_1_16: true
+chrome_cis_rule_1_17: true
+chrome_cis_rule_1_18: true
+chrome_cis_rule_1_20: true
+chrome_cis_rule_1_21: true
+chrome_cis_rule_1_22: true
+chrome_cis_rule_1_23: true
+chrome_cis_rule_1_24: true
+chrome_cis_rule_1_25: true
+chrome_cis_rule_1_26: true
+chrome_cis_rule_1_27: true
+chrome_cis_rule_1_28: true
+chrome_cis_rule_1_29: true
+
+# Section 2: Attack Surface Reduction
+chrome_cis_rule_2_2_1: true
+chrome_cis_rule_2_2_2: true
+chrome_cis_rule_2_2_3: false  # WARNING: blocks WebUSB: some USB devices and security keys stop working in web apps
+chrome_cis_rule_2_2_4: true
+chrome_cis_rule_2_2_5: true
+chrome_cis_rule_2_3_1: true
+chrome_cis_rule_2_3_2: true
+chrome_cis_rule_2_3_3: false  # WARNING: removes EVERY installed extension except chrome_cis_extension_allowlist
+chrome_cis_rule_2_3_7: true
+chrome_cis_rule_2_4_1: false  # WARNING: only ntlm/negotiate login: sites using Basic/Digest auth stop working
+chrome_cis_rule_2_5_1: false  # WARNING: extensions cannot talk to local programs (password managers, GNOME extensions)
+chrome_cis_rule_2_6_1: true
+chrome_cis_rule_2_8_1: true
+chrome_cis_rule_2_8_3: true
+chrome_cis_rule_2_8_4: true
+chrome_cis_rule_2_8_5: true
+chrome_cis_rule_2_8_6: true
+chrome_cis_rule_2_8_7: true
+chrome_cis_rule_2_11: true
+chrome_cis_rule_2_12: false  # WARNING: users cannot click through certificate errors: internal sites with bad certs become unreachable
+chrome_cis_rule_2_13: true
+chrome_cis_rule_2_14: true
+chrome_cis_rule_2_15: true
+chrome_cis_rule_2_16: true
+chrome_cis_rule_2_17: true
+chrome_cis_rule_2_18: false  # WARNING: certificates from local CAs fail if the OCSP/CRL server is down
+chrome_cis_rule_2_19: true
+chrome_cis_rule_2_20: true
+chrome_cis_rule_2_21: true
+chrome_cis_rule_2_22: true
+chrome_cis_rule_2_24: true
+chrome_cis_rule_2_25: true
+chrome_cis_rule_2_26: true
+chrome_cis_rule_2_27: true
+chrome_cis_rule_2_28: true
+chrome_cis_rule_2_31: true
+chrome_cis_rule_2_32: true
+
+# Section 3: Privacy
+chrome_cis_rule_3_1_1: false  # WARNING: cookies deleted when Chrome closes: users are logged out of every site
+chrome_cis_rule_3_1_2: true
+chrome_cis_rule_3_2_1: true
+chrome_cis_rule_3_3: true
+chrome_cis_rule_3_4: true
+chrome_cis_rule_3_5: true
+chrome_cis_rule_3_7: true
+chrome_cis_rule_3_8: true
+chrome_cis_rule_3_9: true
+chrome_cis_rule_3_10: true
+chrome_cis_rule_3_11: true
+chrome_cis_rule_3_12: true
+chrome_cis_rule_3_14: true
+chrome_cis_rule_3_15: true
+chrome_cis_rule_3_16: true
+
+# Section 4: Data Loss Prevention
+chrome_cis_rule_4_1_1: false  # WARNING: no screen sharing in web meetings (also covers 4.12)
+chrome_cis_rule_4_2_1: true
+chrome_cis_rule_4_2_2: true
+chrome_cis_rule_4_2_3: true
+chrome_cis_rule_4_2_4: true
+chrome_cis_rule_4_2_5: true
+chrome_cis_rule_4_2_6: true
+chrome_cis_rule_4_2_7: true
+chrome_cis_rule_4_2_8: true
+chrome_cis_rule_4_3: false  # WARNING: no file upload or "save as" dialogs
+chrome_cis_rule_4_4: false  # WARNING: no microphone for websites (web calls lose audio)
+chrome_cis_rule_4_5: false  # WARNING: no camera for websites (web calls lose video)
+chrome_cis_rule_4_6: true
+chrome_cis_rule_4_7: false  # WARNING: DNS-over-HTTPS only: DNS fails without a DoH server and bypasses company DNS filtering
+chrome_cis_rule_4_8: true
+chrome_cis_rule_4_9: true
+chrome_cis_rule_4_10: true
+chrome_cis_rule_4_11: true
+# 4.12 (L2) is the same policy as 4.1.1 and follows chrome_cis_rule_4_1_1
+
+# Section 5: Forensics
+chrome_cis_rule_5_1: true
+chrome_cis_rule_5_2: true
+chrome_cis_rule_5_3: true

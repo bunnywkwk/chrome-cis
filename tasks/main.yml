@@ -1,3 +1,26 @@
-#SPDX-License-Identifier: MIT-0
 ---
-# tasks file for chrome-cis
+
+- name: PRELIM | Checks and Chrome detection
+  ansible.builtin.import_tasks:
+    file: prelim.yml
+  tags:
+    - always
+
+- name: INSTALL | Google Chrome (opt-in)
+  when: chrome_cis_install
+  ansible.builtin.import_tasks:
+    file: install.yml
+  tags:
+    - install
+
+- name: POLICY | Write the CIS managed policy file
+  ansible.builtin.import_tasks:
+    file: policy.yml
+  tags:
+    - policy
+
+- name: REPORT | Per-rules status
+  ansible.builtin.import_tasks:
+    file: report.yml
+  tags:
+    - always

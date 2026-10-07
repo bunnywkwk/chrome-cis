@@ -1,4 +1,4 @@
-# Troubleshooting: chrome-cis
+# Troubleshooting: chrome_cis
 
 Every error hit while building or testing the role: exact output, cause, fix, prevent. IDs `T-Cn`.
 

@@ -22,7 +22,7 @@ How rules and policies add up (a *rule* is a CIS recommendation; a *policy* is a
 | N/A, Google Update settings, not Chrome policies (2.1.1, 2.1.2) | 0 | 2 |
 | **Total** | **115** | **118** |
 
-Of the 102: 70 PATCH, 9 PATCH "keep unset", 12 PATCH with toggle off (risky), 11 SITE (site decides the value).
+Of the 102: 69 PATCH, 9 PATCH "empty list = Disabled", 13 PATCH with toggle off (risky), 11 SITE (site decides the value).
 
 ## How applicability was decided (evidence, not assumption)
 
@@ -74,20 +74,20 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 - **Linux on Chrome 155**: ✅ Linux = supported on Linux (E1). ➖ N/A = cannot be applied on RHEL, with the reason.
 - **Role**:
   - **PATCH**: the role writes the policy with the CIS value.
-  - **PATCH: keep unset**: CIS wants the policy *absent*; the role doesn't write it, and its AUDIT reports another
-    file in `managed/` that sets it.
+  - **PATCH: `[]`**: CIS wants the exception list *Disabled*; the role writes an empty list (same effect as absent,
+    design-decisions D7) and reports another file in `managed/` that sets entries.
   - **PATCH, toggle off ⚠**: risky for users; own toggle defaults to `false`, `# WARNING:` in defaults.
   - **SITE**: Manual (or site-dependent) rule: report by default; applied only when the site sets the value.
   - **—**: not implemented (N/A).
 - **Verify on the VM** (same for every row): `chrome://policy` → the policy shows the CIS value, Source *Platform*,
-  Level *Mandatory*, Status **OK**; "keep unset" rows are **not listed** (with "Show policies with no value set" off).
+  Level *Mandatory*, Status **OK**; "Disabled" list rows show `[]`.
 
 ## Section 1: Enforced Defaults (30 rules, all L1 except 1.8; they lock Chrome's defaults)
 
 | ID | Lvl / type | Policy = CIS value | Linux on Chrome 155 | Role |
 |----|------|----------------|---------------------|------|
 | 1.1.1 | L1 Auto | `AllowCrossOriginAuthPrompt = false` | ✅ Linux | PATCH |
-| 1.2.1 | L1 Auto | `SafeBrowsingAllowlistDomains` absent | ✅ Linux | PATCH: keep unset; AUDIT reports if set |
+| 1.2.1 | L1 Auto | `SafeBrowsingAllowlistDomains` absent | ✅ Linux | PATCH: `[]` (empty = Disabled); reports other files with entries |
 | 1.2.2 | L1 Manual | `SafeBrowsingProtectionLevel = 1` (standard) or `2` (enhanced) | ✅ Linux | SITE: report; applies only if site value set |
 | 1.3 | L1 Auto | `MediaRouterCastAllowAllIPs = false` | ✅ Linux | PATCH |
 | 1.4 | L1 Auto | `BrowserNetworkTimeQueriesEnabled = true` | ✅ Linux | PATCH |
@@ -97,8 +97,8 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 | 1.8 | **L2** Auto | `SafeSitesFilterBehavior = 1` | ✅ Linux | PATCH |
 | 1.9 | L1 Manual | `ChromeVariations = 0` (all variations) | ✅ Linux | SITE: report; applies only if site value set |
 | 1.10 | L1 Auto | `CertificateTransparencyEnforcementDisabledForLegacyCas` absent | ➖ N/A: not in Chrome 155 policy list (removed); VM: Unknown policy | — |
-| 1.11 | L1 Auto | `CertificateTransparencyEnforcementDisabledForCas` absent | ✅ Linux | PATCH: keep unset; AUDIT reports if set |
-| 1.12 | L1 Auto | `CertificateTransparencyEnforcementDisabledForUrls` absent | ✅ Linux | PATCH: keep unset; AUDIT reports if set |
+| 1.11 | L1 Auto | `CertificateTransparencyEnforcementDisabledForCas` absent | ✅ Linux | PATCH: `[]` (empty = Disabled); reports other files with entries |
+| 1.12 | L1 Auto | `CertificateTransparencyEnforcementDisabledForUrls` absent | ✅ Linux | PATCH: `[]` (empty = Disabled); reports other files with entries |
 | 1.13 | L1 Auto | `SavingBrowserHistoryDisabled = false` | ✅ Linux | PATCH |
 | 1.14 | L1 Auto | `DNSInterceptionChecksEnabled = true` | ✅ Linux | PATCH |
 | 1.15 | L1 Auto | `ComponentUpdatesEnabled = true` | ✅ Linux | PATCH |
@@ -111,11 +111,11 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 | 1.22 | L1 Auto | `ImportAutofillFormData = false` | ✅ Linux | PATCH |
 | 1.23 | L1 Auto | `ImportHomepage = false` | ✅ Linux | PATCH |
 | 1.24 | L1 Auto | `ImportSearchEngine = false` | ✅ Linux | PATCH |
-| 1.25 | L1 Auto | `HSTSPolicyBypassList` absent | ✅ Linux | PATCH: keep unset; AUDIT reports if set |
-| 1.26 | L1 Auto | `OverrideSecurityRestrictionsOnInsecureOrigin` absent | ✅ Linux | PATCH: keep unset; AUDIT reports if set |
-| 1.27 | L1 Auto | `LookalikeWarningAllowlistDomains` absent | ✅ Linux | PATCH: keep unset; AUDIT reports if set |
+| 1.25 | L1 Auto | `HSTSPolicyBypassList` absent | ✅ Linux | PATCH: `[]` (empty = Disabled); reports other files with entries |
+| 1.26 | L1 Auto | `OverrideSecurityRestrictionsOnInsecureOrigin` absent | ✅ Linux | PATCH: `[]` (empty = Disabled); reports other files with entries |
+| 1.27 | L1 Auto | `LookalikeWarningAllowlistDomains` absent | ✅ Linux | PATCH: `[]` (empty = Disabled); reports other files with entries |
 | 1.28 | L1 Auto | `SuppressUnsupportedOSWarning = false` | ✅ Linux | PATCH |
-| 1.29 | L1 Auto | `WebRtcLocalIpsAllowedUrls` absent | ✅ Linux | PATCH: keep unset; AUDIT reports if set |
+| 1.29 | L1 Auto | `WebRtcLocalIpsAllowedUrls` absent | ✅ Linux | PATCH: `[]` (empty = Disabled); reports other files with entries |
 
 ## Section 2: Attack Surface Reduction (49 rules)
 
@@ -127,7 +127,7 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 | 2.2.2 | **L2** Auto | `DefaultWebBluetoothGuardSetting = 2` | ✅ Linux | PATCH |
 | 2.2.3 | **L2** Auto | `DefaultWebUsbGuardSetting = 2` | ✅ Linux | PATCH, toggle **off** ⚠ |
 | 2.2.4 | **L2** Auto | `DefaultNotificationsSetting = 2` | ✅ Linux | PATCH |
-| 2.2.5 | L1 Auto | `PdfLocalFileAccessAllowedForDomains` absent | ✅ Linux | PATCH: keep unset; AUDIT reports if set |
+| 2.2.5 | L1 Auto | `PdfLocalFileAccessAllowedForDomains` absent | ✅ Linux | PATCH: `[]` (empty = Disabled); reports other files with entries |
 | 2.3.1 | L1 Auto | `BlockExternalExtensions = true` | ✅ Linux | PATCH |
 | 2.3.2 | L1 Auto | `ExtensionAllowedTypes = ["extension","hosted_app","platform_app","theme"]` | ✅ Linux | PATCH |
 | 2.3.3 | L1 Auto | `ExtensionInstallBlocklist = ["*"]` | ✅ Linux | PATCH, toggle **off** ⚠ |
@@ -162,7 +162,7 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 | 2.22 | L1 Auto | `EncryptedClientHelloEnabled = true` | ✅ Linux | PATCH |
 | 2.23 | **L2** Auto | `EnforceLocalAnchorConstraintsEnabled = true` | ➖ N/A: not in Chrome 155 policy list (removed) | — |
 | 2.24 | L1 Auto | `EnterpriseProfileCreationKeepBrowsingData = true` | ✅ Linux | PATCH |
-| 2.25 | L1 Auto | `FileOrDirectoryPickerWithoutGestureAllowedForOrigins` absent | ✅ Linux | PATCH: keep unset; AUDIT reports if set |
+| 2.25 | L1 Auto | `FileOrDirectoryPickerWithoutGestureAllowedForOrigins` absent | ✅ Linux | PATCH: `[]` (empty = Disabled); reports other files with entries |
 | 2.26 | L1 Auto | `GoogleSearchSidePanelEnabled = false` | ✅ Linux | PATCH |
 | 2.27 | L1 Manual | `HttpAllowlist = [<hosts>]` | ✅ Linux | SITE: report; applies only if site value set |
 | 2.28 | L1 Auto | `HttpsUpgradesEnabled = true` | ✅ Linux | PATCH |
@@ -215,7 +215,7 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 | 4.9 | L1 Auto | `AutofillCreditCardEnabled = false` | ✅ Linux | PATCH |
 | 4.10 | L1 Auto | `ImportSavedPasswords = false` | ✅ Linux | PATCH |
 | 4.11 | L1 Auto | `SyncTypesListDisabled = ["passwords"]` | ✅ Linux | PATCH |
-| 4.12 | **L2** Auto | `ScreenCaptureAllowed = false` | ✅ Linux | PATCH |
+| 4.12 | **L2** Auto | `ScreenCaptureAllowed = false` | ✅ Linux | PATCH, toggle **off** ⚠ (follows 4.1.1: same policy) |
 
 ## Section 5: Forensics (3 rules)
 
