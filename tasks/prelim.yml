@@ -5,7 +5,7 @@
     that:
       - ansible_version.full is version('2.16.1', '>=')
     fail_msg: "chrome_cis needs ansible-core >= 2.16.1 (found {{ ansible_version.full }})."
-
+    quiet: true
 
 - name: "PRELIM | AUDIT | Check the target OS is supported"
   ansible.builtin.assert:
@@ -14,20 +14,23 @@
       - ansible_facts['distribution_major_version'] in chrome_cis_supported_os_majors
       - ansible_facts['architecture'] == chrome_cis_supported_arch
     fail_msg: >-
-      Unsuported target: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
-      {{ ansible_facts['architecture'] }}. Supported: RHEL-family {{ chrome_cis_supported_arch }}
+      Unsupported target: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
+      {{ ansible_facts['architecture'] }}. Supported: RHEL-family {{ chrome_cis_supported_os_majors | join('/') }},
+      {{ chrome_cis_supported_arch }}.
+    quiet: true
 
-- name: "PRELIM | AUDIT | check the role settings"
+- name: "PRELIM | AUDIT | Check the role settings"
   ansible.builtin.assert:
     that:
       - chrome_cis_channel in chrome_cis_channels
-      - chrome_cis_safe_browsing_protection_level in [none, 1, 1]
+      - chrome_cis_safe_browsing_protection_level in [none, 1, 2]
       - chrome_cis_variations in [none, 0]
       - chrome_cis_proxy_mode in [none, 'direct', 'system']
     fail_msg: >-
       Check chrome_cis_channel ({{ chrome_cis_channels | join('/') }}),
       chrome_cis_safe_browsing_protection_level (1 or 2), chrome_cis_variations (0)
       and chrome_cis_proxy_mode ("direct" or "system").
+    quiet: true
 
 - name: "PRELIM | AUDIT | Gather installed packages"
   ansible.builtin.package_facts:

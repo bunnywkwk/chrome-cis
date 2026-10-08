@@ -1,5 +1,4 @@
 ---
-
 - name: PRELIM | Checks and Chrome detection
   ansible.builtin.import_tasks:
     file: prelim.yml
@@ -19,7 +18,7 @@
   tags:
     - policy
 
-- name: REPORT | Per-rules status
+- name: REPORT | Per-rule status
   ansible.builtin.import_tasks:
     file: report.yml
   tags:

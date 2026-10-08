@@ -7,14 +7,14 @@ how we think about it, and what to do next. Last update: **2026-10-07**.
 
 | Phase ([role-workflow](../../docs/role-workflow.md)) | Status | File |
 |-------|--------|------|
-| 1. Read the benchmark | ✅ | [benchmark-summary.md](benchmark-summary.md) |
-| 2. Requirements matrix | ✅ 118 rules: 102 applicable, 16 N/A, with evidence | [cis-requirements.md](cis-requirements.md) |
-| 3. Discovery on RHEL 8/9/10 | ✅ | [platform-notes.md](platform-notes.md) |
-| 4. Design decisions | ✅ D1–D14 | [design-decisions.md](design-decisions.md) |
-| 5. Build | ⏳ Claude wrote `meta/`, `defaults/`, `vars/`; **you type `tasks/`** from the guide | [build-guide.md](build-guide.md) |
-| 6. Validate | ⏳ guide code passed lint + container tests; your typed files still to lint | build-guide "Results" |
-| 7–8. Test project + VM runs | ❌ next | — |
-| 9–11. Compliance record, evidence, wrap-up | ❌ | — |
+| 1. Read the benchmark | Done | [benchmark-summary.md](benchmark-summary.md) |
+| 2. Requirements matrix | Done: 118 rules: 102 applicable, 16 N/A, with evidence | [cis-requirements.md](cis-requirements.md) |
+| 3. Discovery on RHEL 8/9/10 | Done | [platform-notes.md](platform-notes.md) |
+| 4. Design decisions | Done: D1–D14 | [design-decisions.md](design-decisions.md) |
+| 5. Build | In progress: Claude wrote `meta/`, `defaults/` and the simple part of `vars/`; **you type `tasks/` + the 4 computed variables in `vars/`** (batches 2b, 4a); full `vars` in `reference/vars-main-complete.yml` | [build-guide.md](build-guide.md) |
+| 6. Validate | In progress: guide code passed lint + container tests; your typed files still to lint | build-guide "Results" |
+| 7–8. Test project + VM runs | Next | — |
+| 9–11. Compliance record, evidence, wrap-up | Not started | — |
 
 Daily history: [work-log.md](work-log.md). Errors met: [troubleshooting.md](troubleshooting.md). Every file explained:
 [code-walkthrough.md](code-walkthrough.md).

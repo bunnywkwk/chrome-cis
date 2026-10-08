@@ -15,12 +15,10 @@ chrome_cis_repo_key_url: https://dl.google.com/linux/linux_signing_key.pub
 chrome_cis_policy_dir: /etc/opt/chrome/policies/managed
 chrome_cis_policy_file: chrome_cis.json
 
-# Installed google-chrome-* package names, e.g. ["google-chrome-stable"] (D10)
+# Installed google-chrome-* packages, e.g. ["google-chrome-stable 155.0.8059.39"] (D10)
 chrome_cis_installed: >-
   {{ ansible_facts['packages'] | default({}) | dict2items | selectattr('key', 'match', '^google-chrome-')
      | map(attribute='value') | map('first') | map(attribute='name') | list }}
-
-# Same packages with their version, for the report, e.g. ["google-chrome-stable 155.0.8059.39"]
 chrome_cis_installed_versions: >-
   {%- set out = [] -%}
   {%- for name in chrome_cis_installed -%}

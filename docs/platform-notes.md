@@ -77,6 +77,25 @@ enterprise policies (our JSON file) and optionally Google's cloud console. Chann
 side by side → the role can select one with a single variable. **To verify** when we get there: that beta/unstable read
 the same `/etc/opt/chrome/policies/managed/` folder (install one on a VM and repeat the `chrome://policy` test).
 
+## W-4. Google's documentation for policies on Linux (2026-10-07)
+
+**Why:** the RPM doesn't create `policies/`, so the folder layout must come from Google, not from guessing.
+
+| Source | Quote |
+|--------|-------|
+| Chrome Enterprise Help, "2. Set policies" (Linux), `https://support.google.com/chrome/a/answer/9027408` | "Managed and recommended policies must have their respective folders in the file system. **Create the following directories if they do not already exist**: `mkdir /etc/opt/chrome/policies`, `mkdir /etc/opt/chrome/policies/managed`, `mkdir /etc/opt/chrome/policies/recommended`" |
+| same page | managed = "required and … mandated by an admin. Make sure that these files are not writable and, therefore, cannot be overridden by non-admin users"; recommended = "can be changed by the users" |
+| same page | "Be careful not to set the same policy in more than one file. If you do, it's unclear which of the values you specify will be applied." |
+| same page | "Chrome browser amalgamates all of the individual files in the policies folders and applies all the settings. Note: If there are multiple files with conflicting values set for a specific policy, the behavior is undefined." |
+| same page, *Verify the configuration* | "Users need to restart Chrome browser for policies to take effect … go to chrome://policy. Click Reload policies" |
+| Chromium "Linux Quick Start", `https://www.chromium.org/administrators/linux-quick-start/` | "For Google Chrome, these two sets live at … `/etc/opt/chrome/policies/managed/` … `/etc/opt/chrome/policies/recommended/` … Create these directories if they do not already exist" and "(remember that the paths differ for Chromium)" |
+| same Chromium page | "You can spread your policies over multiple JSON files. Chrome will read and apply them all. However, you should not be setting the same policy in more than one file. If you do, it is undefined which of the values you specified prevails." |
+
+**What it confirms:** the role must create `policies/managed/` (D2); root-owned, not writable by users (D2: `0755`/`0644`
+root); conflicts between files are undefined, which is why the report checks other files (D7); policies apply at
+the next Chrome start (D11); `chrome://policy` is Google's own verification (D-3, D-4). Chromium uses a different
+path (for later).
+
 ## D-2. Step 2: install by hand (2026-10-07)
 
 Commands (each VM; changes the VM, rollback = snapshot `pre-chrome`):
@@ -92,7 +111,7 @@ sudo ls -laZR /etc/opt/chrome
 
 | Check | Why we check it | RHEL 8 | RHEL 9 | RHEL 10 |
 |-------|-----------------|--------|--------|---------|
-| Install works | current Chrome is a prebuilt binary; RHEL 8 has the oldest glibc (2.28) | ✅ | ✅ | ✅ |
+| Install works | current Chrome is a prebuilt binary; RHEL 8 has the oldest glibc (2.28) | Yes | Yes | Yes |
 | Chrome version | record of the tested version (benchmark tested v120) | 155.0.8059.39 | 155.0.8059.39 | 155.0.8059.39 |
 | Extra packages pulled | what an install adds to the host | liberation fonts, `vulkan-loader`, `mesa-vulkan-drivers` | liberation fonts | liberation fonts, `xdg-utils` |
 | Repo file | the role's opt-in install must match it | `/etc/yum.repos.d/google-chrome.repo`, identical on all 3 (same as W-1) | same | same |

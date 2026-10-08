@@ -31,7 +31,7 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 - **Users notice**: from CIS *Impact*. "none (default)" = Chrome already behaves this way.
 - **Plan**: first idea only, to be confirmed.
   - `set` = write the policy; low risk.
-  - `set ⚠` = write it, but it can break things for users; toggle **off by default** with a `# WARNING:` (candidate).
+  - `set (risky)` = write it, but it can break things for users; toggle **off by default** with a `# WARNING:` (candidate).
   - `site` = Manual rule whose value the organisation decides: report by default, optional site variable (CLAUDE.md principle 5).
   - `report` = Manual rule, report only.
   - `win?` = probably Windows-only or retired; **verify** in discovery before classifying `na_os`.
@@ -88,7 +88,7 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 |----|----------|---------------|-----|--------------|------|
 | 2.2.1 | L1 Auto | `DefaultInsecureContentSetting = 2` | no HTTP content mixed into HTTPS pages | mixed-content pages partly break | set |
 | 2.2.2 | **L2** Auto | `DefaultWebBluetoothGuardSetting = 2` | sites can't talk to Bluetooth devices | web Bluetooth stops working | set |
-| 2.2.3 | **L2** Auto | `DefaultWebUsbGuardSetting = 2` | WebUSB could be abused for phishing that bypasses hardware 2FA | web USB stops; **may break some security-key flows** | set ⚠ |
+| 2.2.3 | **L2** Auto | `DefaultWebUsbGuardSetting = 2` | WebUSB could be abused for phishing that bypasses hardware 2FA | web USB stops; **may break some security-key flows** | set (risky) |
 | 2.2.4 | **L2** Auto | `DefaultNotificationsSetting = 2` | notifications may carry fake/malicious links | no site notifications | set |
 | 2.2.5 | L1 Auto | `PdfLocalFileAccessAllowedForDomains` absent | sites can't open local files in the PDF viewer | open local PDFs manually | set (absent) |
 
@@ -98,7 +98,7 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 |----|----------|---------------|-----|--------------|------|
 | 2.3.1 | L1 Auto | `BlockExternalExtensions = true` | only Web Store extensions, no side-loaded ones | can't install external extensions | set |
 | 2.3.2 | L1 Auto | `ExtensionAllowedTypes = ["extension","hosted_app","platform_app","theme"]` | block misusable/deprecated app types | installed extensions of other types are **removed** | set (note: Google removed Chrome Apps; check values on current Chrome) |
-| 2.3.3 | L1 Auto | `ExtensionInstallBlocklist = ["*"]` | block all extensions except an allowlist | **every installed extension is removed** unless allowlisted (e.g. password manager) | set ⚠ + site allowlist (`ExtensionInstallAllowlist`) |
+| 2.3.3 | L1 Auto | `ExtensionInstallBlocklist = ["*"]` | block all extensions except an allowlist | **every installed extension is removed** unless allowlisted (e.g. password manager) | set (risky) + site allowlist (`ExtensionInstallAllowlist`) |
 | 2.3.4 | **L2** Auto | `DefaultThirdPartyStoragePartitioningSetting = 2` | defends against cross-site tracking/timing attacks | some sites using third-party access may break | set; value to verify (CIS text is unclear: "Enabled and Blocked") |
 | 2.3.5 | L1 Manual | `ThirdPartyStoragePartitioningBlockedForOrigins = [<urls>]` | curated list instead of blocking all | varies per site | site (list) |
 | 2.3.6 | **L2** Auto | `ExtensionManifestV2Availability = 3` (forced only) | old v2 extensions disabled unless forced by admin | v2 extensions disabled | set; may be obsolete in current Chrome (MV2 removed) → verify |
@@ -108,8 +108,8 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 
 | ID | L / type | Policy = value | Why | Users notice | Plan |
 |----|----------|---------------|-----|--------------|------|
-| 2.4.1 | **L2** Auto | `AuthSchemes = "ntlm,negotiate"` | Basic/Digest send passwords (almost) in clear | legacy Basic-auth sites stop working | set ⚠ |
-| 2.5.1 | **L2** Auto | `NativeMessagingBlocklist = ["*"]` | extensions can't talk to local programs unless allowlisted | e.g. desktop password-manager integration breaks | set ⚠ + site allowlist |
+| 2.4.1 | **L2** Auto | `AuthSchemes = "ntlm,negotiate"` | Basic/Digest send passwords (almost) in clear | legacy Basic-auth sites stop working | set (risky) |
+| 2.5.1 | **L2** Auto | `NativeMessagingBlocklist = ["*"]` | extensions can't talk to local programs unless allowlisted | e.g. desktop password-manager integration breaks | set (risky) + site allowlist |
 | 2.6.1 | L1 Manual | `PasswordManagerEnabled` = explicitly set (CIS audit checks `0`) | organisation decides whether the browser stores passwords | depends | site (true/false) |
 | 2.7.1 | L1 Auto | `CloudPrintProxyEnabled = false` | no printing from unmanaged devices via Cloud Print | none | set; **win?/retired** (Google Cloud Print shut down) → verify |
 | 2.8.1 | L1 Manual | `RemoteAccessHostAllowRemoteAccessConnections = false` | only approved remote-access tools; skip if Chrome Remote Desktop is approved | Chrome Remote Desktop disabled | site |
@@ -127,13 +127,13 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 | ID | L / type | Policy = value | Why | Users notice | Plan |
 |----|----------|---------------|-----|--------------|------|
 | 2.11 | L1 Auto | `DownloadRestrictions = 4` | block downloads Safe Browsing flags as malicious | malicious downloads blocked | set |
-| 2.12 | **L2** Auto | `SSLErrorOverrideAllowed = false` | users can't click through certificate errors | **internal sites with bad certs become unreachable** | set ⚠ |
+| 2.12 | **L2** Auto | `SSLErrorOverrideAllowed = false` | users can't click through certificate errors | **internal sites with bad certs become unreachable** | set (risky) |
 | 2.13 | L1 Auto | `DisableSafeBrowsingProceedAnyway = true` | users can't click through Safe Browsing warnings | rare false positive blocks a real site | set |
 | 2.14 | L1 Auto | `SitePerProcess = true` | each site in its own process (data isolation) | more memory | set |
 | 2.15 | **L2** Auto | `ForceGoogleSafeSearch = true` | filter risky search results | filtered search | set |
 | 2.16 | L1 Auto | `RelaunchNotification = 2` | after an update, force a relaunch so the patch takes effect | recurring relaunch prompt, then forced relaunch (tabs restored) | set |
-| 2.17 | L1 Auto | `ProxyMode` set and **not** `"auto_detect"` | WPAD auto-detect can be abused to inject a rogue proxy | proxy no longer auto-discovered | site (`direct`, `fixed_servers`, `pac_script`, `system`); network-dependent ⚠ |
-| 2.18 | **L2** Auto | `RequireOnlineRevocationChecksForLocalAnchors = true` | always check revocation for internal-CA certificates | **hard-fail if the OCSP/CRL server is down** | set ⚠ |
+| 2.17 | L1 Auto | `ProxyMode` set and **not** `"auto_detect"` | WPAD auto-detect can be abused to inject a rogue proxy | proxy no longer auto-discovered | site (`direct`, `fixed_servers`, `pac_script`, `system`); network-dependent (risky) |
+| 2.18 | **L2** Auto | `RequireOnlineRevocationChecksForLocalAnchors = true` | always check revocation for internal-CA certificates | **hard-fail if the OCSP/CRL server is down** | set (risky) |
 | 2.19 | L1 Auto | `RelaunchNotificationPeriod = 86400000` (24 h) | relaunch within a day of an update | reminder until relaunch | set |
 | 2.20 | L1 Auto | `AllowWebAuthnWithBrokenTlsCerts = false` | no WebAuthn on sites with invalid TLS | none (default) | set |
 | 2.21 | L1 Auto | `DomainReliabilityAllowed = false` | no reliability data sent to Google | none | set |
@@ -153,7 +153,7 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 
 | ID | L / type | Policy = value | Why | Users notice | Plan |
 |----|----------|---------------|-----|--------------|------|
-| 3.1.1 | **L2** Auto | `DefaultCookiesSetting = 4` | cookies only for the session | **logged out of every site when the browser closes** | set ⚠ |
+| 3.1.1 | **L2** Auto | `DefaultCookiesSetting = 4` | cookies only for the session | **logged out of every site when the browser closes** | set (risky) |
 | 3.1.2 | L1 Auto | `DefaultGeolocationSetting = 2` | no site can track location (also leaks network info) | location features off | set |
 | 3.2.1 | L1 Auto | `EnableMediaRouter = false` | no Google Cast of tabs/desktop to local devices | Cast icon gone | set |
 | 3.3 | L1 Auto | `PaymentMethodQueryEnabled = false` | sites can't ask what payment methods are stored | — | set |
@@ -175,7 +175,7 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 
 | ID | L / type | Policy = value | Why | Users notice | Plan |
 |----|----------|---------------|-----|--------------|------|
-| 4.1.1 | **L2** Auto | `ScreenCaptureAllowed = false` | sites can't capture the screen | **screen sharing in web meetings breaks** | set ⚠ (same policy as 4.12) |
+| 4.1.1 | **L2** Auto | `ScreenCaptureAllowed = false` | sites can't capture the screen | **screen sharing in web meetings breaks** | set (risky) (same policy as 4.12) |
 | 4.2.1 | **L2** Auto | `DefaultSerialGuardSetting = 2` | sites can't use serial ports | — | set |
 | 4.2.2 | **L2** Auto | `DefaultSensorsSetting = 2` | sites can't read sensors (profiling) | — | set |
 | 4.2.3 | L1 Manual | `ClipboardAllowedForUrls = [<urls>]` | the only sites allowed to read the clipboard (with 4.2.5) | — | site (list) |
@@ -184,11 +184,11 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 | 4.2.6 | **L2** Auto | `DefaultWindowManagementSetting = 2` | rogue sites can't open/move windows on other screens | — | set |
 | 4.2.7 | **L2** Manual | `WindowManagementAllowedForUrls = [<urls>]` | sites allowed window management | — | site (list) |
 | 4.2.8 | **L2** Manual | `WindowManagementBlockedForUrls = [<urls>]` | sites blocked from window management | — | site (list) |
-| 4.3 | **L2** Auto | `AllowFileSelectionDialogs = false` | no upload/download/save dialogs (data leaving) | **no file uploads, no "save as"** | set ⚠ |
-| 4.4 | **L2** Auto | `AudioCaptureAllowed = false` | sites can't use the microphone | **web calls lose audio** | set ⚠ |
-| 4.5 | **L2** Auto | `VideoCaptureAllowed = false` | sites can't use the camera | **web calls lose video** | set ⚠ |
+| 4.3 | **L2** Auto | `AllowFileSelectionDialogs = false` | no upload/download/save dialogs (data leaving) | **no file uploads, no "save as"** | set (risky) |
+| 4.4 | **L2** Auto | `AudioCaptureAllowed = false` | sites can't use the microphone | **web calls lose audio** | set (risky) |
+| 4.5 | **L2** Auto | `VideoCaptureAllowed = false` | sites can't use the camera | **web calls lose video** | set (risky) |
 | 4.6 | L1 Auto | `UserFeedbackAllowed = false` | no data to Google via feedback | — | set |
-| 4.7 | **L2** Auto | `DnsOverHttpsMode = "secure"` | encrypted DNS, no fallback | DNS fails if no DoH server; **bypasses corporate DNS filtering** | set ⚠ (needs `DnsOverHttpsTemplates` site value?) → verify |
+| 4.7 | **L2** Auto | `DnsOverHttpsMode = "secure"` | encrypted DNS, no fallback | DNS fails if no DoH server; **bypasses corporate DNS filtering** | set (risky) (needs `DnsOverHttpsTemplates` site value?) → verify |
 | 4.8 | **L2** Auto | `AutofillAddressEnabled = false` | stolen machine can't leak stored addresses | no address autofill | set |
 | 4.9 | L1 Auto | `AutofillCreditCardEnabled = false` | stored cards not harvestable | no card autofill | set |
 | 4.10 | L1 Auto | `ImportSavedPasswords = false` | no passwords imported from other browsers | — | set |
@@ -211,7 +211,7 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 |-------|-------------|-------------------------------------------------------|
 | Config mechanism | ~100 of 118 rules are "policy X = value Y" | CLAUDE.md "single declarative artifact" pattern: rules as data in `vars/`, one task renders the managed-policy JSON; skip by rule ID |
 | Absent-policy rules | 1.2.1, 1.10–1.12, 1.25–1.27, 1.29, 2.2.5, 2.25 | our JSON simply doesn't contain them; an AUDIT step reports if **another** file in the policy dir sets them |
-| Risky rules (`set ⚠`) | 2.2.3, 2.3.3, 2.4.1, 2.5.1, 2.12, 2.17, 2.18, 3.1.1, 4.1.1/4.12, 4.3, 4.4, 4.5, 4.7 | own toggle `false` + `# WARNING:` (mostly L2; 2.3.3 and 2.17 are L1) |
+| Risky rules (`set (risky)`) | 2.2.3, 2.3.3, 2.4.1, 2.5.1, 2.12, 2.17, 2.18, 3.1.1, 4.1.1/4.12, 4.3, 4.4, 4.5, 4.7 | own toggle `false` + `# WARNING:` (mostly L2; 2.3.3 and 2.17 are L1) |
 | Manual with a site value (`site`) | 1.2.2, 1.9, 2.3.5, 2.6.1, 2.8.1, 2.8.3, 2.9.1, 2.17, 2.27, 4.2.3, 4.2.4, 4.2.7, 4.2.8 (+ allowlists for 2.3.3, 2.5.1) | report by default; optional site variable writes the policy. Lists are simple (list of strings), so they fit [keep-options-simple] |
 | Not applicable on RHEL (confirmed 2026-10-07) | **16**: Windows-only 2.8.2, 2.10.1, 2.30, 3.13; removed from Chrome 1.10, 1.19, 2.3.4, 2.3.5, 2.3.6, 2.7.1, 2.9.1, 2.23, 2.29, 3.6; Google Update 2.1.1, 2.1.2 | not implemented; evidence: Google's Chrome 155 policy list + VM test ([cis-requirements.md](cis-requirements.md)) |
 | Possibly obsolete in current Chrome | 1.10, 2.3.2 (Chrome Apps), 2.3.6 (MV2), 2.9.1 (First-Party Sets), 2.7.1 (Cloud Print) | check `chrome://policy` on the installed version: unknown policies show as errors |

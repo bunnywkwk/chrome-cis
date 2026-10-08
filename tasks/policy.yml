@@ -1,0 +1,17 @@
+---
+
+- name: "POLICY | PATCH | Create the managed policy folder"
+  ansible.builtin.file:
+    path: "{{ chrome_cis_policy_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "POLICY | PATCH | Write {{ chrome_cis_policy_file }}"
+  ansible.builtin.copy:
+    dest: "{{ chrome_cis_policy_dir }}/{{ chrome_cis_policy_file }}"
+    content: "{{ chrome_cis_policies | to_nice_json(sort_keys=true) }}\n"
+    owner: root
+    group: root
+    mode: "0644"

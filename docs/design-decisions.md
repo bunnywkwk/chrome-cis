@@ -23,7 +23,7 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
 - **Why:** this is how Chrome on Linux takes enterprise policies; "managed" = mandatory, users can't override (what CIS
   wants, benchmark-summary F4). One file the role owns = easy to audit and to remove; other teams can keep their own
   files next to it.
-- **Evidence:** W-1 (path compiled into Chrome); D-3/D-4: file read and shown as *Platform / Machine / Mandatory*, OK on
+- **Evidence:** W-4 (Google's Linux policy docs: "Create the following directories if they do not already exist … /etc/opt/chrome/policies/managed"); W-1 (path compiled into Chrome); D-3/D-4: file read and shown as *Platform / Machine / Mandatory*, OK on
   all 3 OS; the RPM doesn't create `policies/managed/` (D-2), so the role creates it.
 
 ## D3. Rules as data, one task writes the file (data-driven)
@@ -36,7 +36,7 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
   declarative: it compares and only changes the file on drift (no separate AUDIT step needed, CLAUDE.md AUDIT→PATCH
   rule 3), and `--check --diff` shows exactly which policies would change.
 - **Evidence:** cis-requirements.md (every applicable rule = one policy + value); D-4 (one file with 101 policies works).
-- **Not adopted:** one task per rule (MongoDB style: there, rules used different modules/restarts); a Jinja template
+- **Not adopted** (all four options compared in [implementation-options.md](implementation-options.md)): one task per rule (MongoDB style: there, rules used different modules/restarts); a looping `set_fact` task (logic twice, noisy output); a Jinja template
   (`to_nice_json` already gives valid, stable JSON).
 
 ## D4. Levels gate the rules (L1 on, L2 off)
@@ -94,6 +94,11 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
 - **CIS deviation (documented):** the CIS audit says the registry path "will not exist" when Disabled: that is how
   Windows stores a Disabled list. On RHEL an empty list has the same effect, so `[]` counts as Disabled.
 - **Evidence:** D-4: all 9 written as `[]` showed **OK** on RHEL 8, 9 and 10.
+- **Known gap (accepted 2026-10-07, user decision):** the report compares only policies the role **writes**. A CIS
+  policy the role does not apply (rule off, Level 2 off, SITE value not set, e.g. 2.17) but another file sets (e.g.
+  `ProxyMode: "auto_detect"`) is not reported; Chrome uses that value because it is the only one. Covered case: both
+  files set the same policy (Google: "the behavior is undefined", W-4) → listed in `conflicts_in_other_files`.
+  Possible later fix: also list CIS policies set elsewhere while not applied (a few lines in `report.yml`).
 - **Revised 2026-10-07 (before review):** first draft left them unset; changed on the user's decision for visible,
   enforced assurance.
 
@@ -111,8 +116,15 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
   (`ansible.builtin.yum_repository`, same name and content as Google's `/etc/yum.repos.d/google-chrome.repo`), install
   `google-chrome-<channel>` (`ansible.builtin.dnf`).
 - **Why:** key first so the package is signature-checked and the RPM's own key import (which fails under dnf) isn't
-  needed. Same repo file as Google's, so Google's daily cron and the role don't rewrite each other.
-- **Evidence:** D-2, T-C1 (key not imported when installed by hand); W-1 (RPM writes the repo file + daily cron).
+  needed. Same file name and section (`google-chrome.repo`, `[google-chrome]`) as Google's, so there is only one repo
+  definition.
+- **Revised 2026-10-07:** the draft said "same content" so Google's daily cron wouldn't rewrite the file. Not exact:
+  Ansible writes `baseurl = …` (spaces), Google writes `baseurl=…`. They still don't fight: the cron
+  (`/etc/cron.daily/google-chrome`) only recreates the file if it is **missing** (`verify_install`: `[ -f
+  "$YUM_REPO_FILE" ]`) and only edits lines starting exactly with `baseurl=` (`sed -i -e "s,^baseurl=.*,…"`), which
+  ours don't. Container test T3: rerun after install `changed=0`.
+- **Evidence:** D-2, T-C1 (key not imported when installed by hand); W-1 (RPM writes the repo file + daily cron);
+  cron script read on the workstation (google-chrome-stable 154); build-guide results T3.
 
 ## D10. Channel by one variable; detect, don't assume; no version gate
 

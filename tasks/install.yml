@@ -1,0 +1,25 @@
+---
+
+- name: "INSTALL | Import Google's package signing key"
+  ansible.builtin.rpm_key:
+    key: "{{ chrome_cis_repo_key_url }}"
+    state: present
+
+- name: "INSTALL | Add the Google Chrome repository"
+  ansible.builtin.yum_repository:
+    name: google-chrome
+    file: google-chrome
+    description: google-chrome
+    baseurl: "{{ chrome_cis_repo_baseurl }}"
+    enabled: true
+    gpgcheck: true
+    gpgkey: "{{ chrome_cis_repo_key_url }}"
+
+- name: "INSTALL | Install google-chrome-{{ chrome_cis_channel }}"
+  ansible.builtin.dnf:
+    name: "google-chrome-{{ chrome_cis_channel }}"
+    state: present
+
+- name: "INSTALL | Refresh installed packages"
+  ansible.builtin.package_facts:
+    manager: rpm
