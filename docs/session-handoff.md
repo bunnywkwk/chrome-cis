@@ -37,7 +37,7 @@ Daily history: [work-log.md](work-log.md). Errors met: [troubleshooting.md](trou
 | **Evidence, not assumption** | every "works on RHEL" / "N/A" claim is backed by Google's policy template for Chrome 155 (Ctrl+F search text per rule) **and** a VM test. Base proof on that template, not on new sources |
 | **The benchmark is written for Windows** | PDF printed p. 8–9 (viewer p. 9–10): Group Policy / registry. On RHEL the same **policy names** go into a JSON file in `/etc/opt/chrome/policies/managed/` |
 | **Data, not 100 tasks** | all rules use one mechanism, so they're a list in `vars/main.yml`; one `copy` writes the JSON (D3) |
-| **Safe by default** | L1 on, L2 off; 12 risky rules off with a `# WARNING:` saying what breaks; site values report-only until set |
+| **Full CIS by default, exceptions in `group_vars`** | L1 on, L2 off; 12 risky rules **on** with a `# WARNING:` saying what breaks, the site turns off what it can't accept (D5 revised 2026-10-08); site values report-only until set |
 | **Users choose, never weaken** | they can switch rules off/on or set site values; they can't change a CIS value |
 | **All 118 accounted for** | N/A rules stay in the list with a reason and appear in every report |
 | **Don't over-engineer** | simple inputs only (one value or a flat list); no restart of users' browsers; no SELinux tasks (not needed) |
@@ -52,7 +52,7 @@ Daily history: [work-log.md](work-log.md). Errors met: [troubleshooting.md](trou
 | Install | `chrome_cis_install`, `chrome_cis_channel` | `false`, `stable` |
 | Profiles | `chrome_cis_level_1`, `chrome_cis_level_2` | `true`, `false` |
 | Site values (11 SITE rules + 2 allowlists) | e.g. `chrome_cis_proxy_mode`, `chrome_cis_http_allowlist` | `null` / `[]` = report only |
-| Rule toggles | `chrome_cis_rule_<id>` (101) | `true`; 12 risky ones `false` with the reason in the comment |
+| Rule toggles | `chrome_cis_rule_<id>` (101) | `true`, including the 12 risky ones (reason in the comment; turn off in `group_vars`) |
 
 **`vars/main.yml` = internal, don't override:**
 
@@ -63,7 +63,8 @@ Daily history: [work-log.md](work-log.md). Errors met: [troubleshooting.md](trou
 | `chrome_cis_policies` | the applied entries as `{policy: value}` = the JSON content |
 | `chrome_cis_installed(_versions)` | `google-chrome-*` packages found by `package_facts` |
 
-With defaults: **65** policies written, report `applied 65, off 28, site not set 9, N/A 16, total 118`.
+With defaults: **66** policies written, report `applied 66, off 27, site not set 9, N/A 16, total 118` (65 / 28 before
+D5 was revised: 2.3.3 is the only L1 risky rule).
 
 ## 5. Facts to remember
 

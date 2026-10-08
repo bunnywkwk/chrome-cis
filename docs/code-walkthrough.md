@@ -44,7 +44,7 @@ Every setting a user may change, grouped: install, profiles, site values, rule t
 | `chrome_cis_install: false`, `chrome_cis_channel: stable` | opt-in install; which `google-chrome-*` package | D9, D10 |
 | `chrome_cis_level_1: true`, `chrome_cis_level_2: false` | profile switches | D4 |
 | site values `null` / `[]` | 11 SITE rules + 2 allowlists: report only until set | D6; `null` because `false` is a real answer |
-| `chrome_cis_rule_<id>` (101) | one toggle per applicable rule; 12 risky ones `false` + `# WARNING` | D5; 4.12 has none (follows 4.1.1) |
+| `chrome_cis_rule_<id>` (101) | one toggle per applicable rule; 12 risky ones `true` + `# WARNING` (site turns off in `group_vars`) | D5; 4.12 has none (follows 4.1.1) |
 
 ## vars/main.yml
 

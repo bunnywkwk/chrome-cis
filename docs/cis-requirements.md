@@ -22,7 +22,7 @@ How rules and policies add up (a *rule* is a CIS recommendation; a *policy* is a
 | N/A, Google Update settings, not Chrome policies (2.1.1, 2.1.2) | 0 | 2 |
 | **Total** | **115** | **118** |
 
-Of the 102: 69 PATCH, 9 PATCH "empty list = Disabled", 13 PATCH with toggle off (risky), 11 SITE (site decides the value).
+Of the 102: 69 PATCH, 9 PATCH "empty list = Disabled", 13 PATCH risky (on by default, site may turn off; D5 revised), 11 SITE (site decides the value).
 
 ## How applicability was decided (evidence, not assumption)
 
@@ -76,7 +76,8 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
   - **PATCH**: the role writes the policy with the CIS value.
   - **PATCH: `[]`**: CIS wants the exception list *Disabled*; the role writes an empty list (same effect as absent,
     design-decisions D7) and reports another file in `managed/` that sets entries.
-  - **PATCH, toggle off (risky)**: risky for users; own toggle defaults to `false`, `# WARNING:` in defaults.
+  - **PATCH, risky**: breaks things users rely on; own toggle, `true` by default (D5 revised 2026-10-08), `# WARNING:` in
+    defaults; a site turns it off in `group_vars`.
   - **SITE**: Manual (or site-dependent) rule: report by default; applied only when the site sets the value.
   - **—**: not implemented (N/A).
 - **Verify on the VM** (same for every row): `chrome://policy` → the policy shows the CIS value, Source *Platform*,
@@ -125,18 +126,18 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 | 2.1.2 | L1 Auto | Google Update `AutoUpdateCheckPeriodMinutes` ≠ 0 | N/A: Google Update (Windows/macOS updater), not a Chrome policy; RHEL updates via dnf | — |
 | 2.2.1 | L1 Auto | `DefaultInsecureContentSetting = 2` | Linux | PATCH |
 | 2.2.2 | **L2** Auto | `DefaultWebBluetoothGuardSetting = 2` | Linux | PATCH |
-| 2.2.3 | **L2** Auto | `DefaultWebUsbGuardSetting = 2` | Linux | PATCH, toggle **off** (risky) |
+| 2.2.3 | **L2** Auto | `DefaultWebUsbGuardSetting = 2` | Linux | PATCH, risky |
 | 2.2.4 | **L2** Auto | `DefaultNotificationsSetting = 2` | Linux | PATCH |
 | 2.2.5 | L1 Auto | `PdfLocalFileAccessAllowedForDomains` absent | Linux | PATCH: `[]` (empty = Disabled); reports other files with entries |
 | 2.3.1 | L1 Auto | `BlockExternalExtensions = true` | Linux | PATCH |
 | 2.3.2 | L1 Auto | `ExtensionAllowedTypes = ["extension","hosted_app","platform_app","theme"]` | Linux | PATCH |
-| 2.3.3 | L1 Auto | `ExtensionInstallBlocklist = ["*"]` | Linux | PATCH, toggle **off** (risky) |
+| 2.3.3 | L1 Auto | `ExtensionInstallBlocklist = ["*"]` | Linux | PATCH, risky |
 | 2.3.4 | **L2** Auto | `DefaultThirdPartyStoragePartitioningSetting = 2` | N/A: not in Chrome 155 policy list (removed) | — |
 | 2.3.5 | L1 Manual | `ThirdPartyStoragePartitioningBlockedForOrigins = [<urls>]` | N/A: not in Chrome 155 policy list (removed) | — |
 | 2.3.6 | **L2** Auto | `ExtensionManifestV2Availability = 3` (forced only) | N/A: not in Chrome 155 policy list (removed); VM: Unknown policy | — |
 | 2.3.7 | L1 Auto | `ExtensionUnpublishedAvailability = 1` | Linux | PATCH |
-| 2.4.1 | **L2** Auto | `AuthSchemes = "ntlm,negotiate"` | Linux | PATCH, toggle **off** (risky) |
-| 2.5.1 | **L2** Auto | `NativeMessagingBlocklist = ["*"]` | Linux | PATCH, toggle **off** (risky) |
+| 2.4.1 | **L2** Auto | `AuthSchemes = "ntlm,negotiate"` | Linux | PATCH, risky |
+| 2.5.1 | **L2** Auto | `NativeMessagingBlocklist = ["*"]` | Linux | PATCH, risky |
 | 2.6.1 | L1 Manual | `PasswordManagerEnabled` = explicitly set (CIS audit checks `0`) | Linux | SITE: report; applies only if site value set |
 | 2.7.1 | L1 Auto | `CloudPrintProxyEnabled = false` | N/A: not in Chrome 155 policy list (removed); VM: Unknown policy | — |
 | 2.8.1 | L1 Manual | `RemoteAccessHostAllowRemoteAccessConnections = false` | Linux | SITE: report; applies only if site value set |
@@ -149,13 +150,13 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 | 2.9.1 | L1 Manual | `FirstPartySetsEnabled = false` | N/A: not in Chrome 155 policy list (removed); VM: Unknown policy | — |
 | 2.10.1 | L1 Manual | `CloudAPAuthEnabled = true` | N/A: Windows-only (Google list: "Google Chrome (Windows)" only); VM: Unknown policy | — |
 | 2.11 | L1 Auto | `DownloadRestrictions = 4` | Linux | PATCH |
-| 2.12 | **L2** Auto | `SSLErrorOverrideAllowed = false` | Linux | PATCH, toggle **off** (risky) |
+| 2.12 | **L2** Auto | `SSLErrorOverrideAllowed = false` | Linux | PATCH, risky |
 | 2.13 | L1 Auto | `DisableSafeBrowsingProceedAnyway = true` | Linux | PATCH |
 | 2.14 | L1 Auto | `SitePerProcess = true` | Linux | PATCH |
 | 2.15 | **L2** Auto | `ForceGoogleSafeSearch = true` | Linux | PATCH |
 | 2.16 | L1 Auto | `RelaunchNotification = 2` | Linux | PATCH |
 | 2.17 | L1 Auto | `ProxyMode` set and **not** `"auto_detect"` | Linux (ProxyMode marked Deprecated; successor ProxySettings) | SITE: report; applies only if site value set |
-| 2.18 | **L2** Auto | `RequireOnlineRevocationChecksForLocalAnchors = true` | Linux | PATCH, toggle **off** (risky) |
+| 2.18 | **L2** Auto | `RequireOnlineRevocationChecksForLocalAnchors = true` | Linux | PATCH, risky |
 | 2.19 | L1 Auto | `RelaunchNotificationPeriod = 86400000` (24 h) | Linux | PATCH |
 | 2.20 | L1 Auto | `AllowWebAuthnWithBrokenTlsCerts = false` | Linux | PATCH |
 | 2.21 | L1 Auto | `DomainReliabilityAllowed = false` | Linux | PATCH |
@@ -175,7 +176,7 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 
 | ID | Lvl / type | Policy = CIS value | Linux on Chrome 155 | Role |
 |----|------|----------------|---------------------|------|
-| 3.1.1 | **L2** Auto | `DefaultCookiesSetting = 4` | Linux | PATCH, toggle **off** (risky) |
+| 3.1.1 | **L2** Auto | `DefaultCookiesSetting = 4` | Linux | PATCH, risky |
 | 3.1.2 | L1 Auto | `DefaultGeolocationSetting = 2` | Linux | PATCH |
 | 3.2.1 | L1 Auto | `EnableMediaRouter = false` | Linux | PATCH |
 | 3.3 | L1 Auto | `PaymentMethodQueryEnabled = false` | Linux | PATCH |
@@ -197,7 +198,7 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 
 | ID | Lvl / type | Policy = CIS value | Linux on Chrome 155 | Role |
 |----|------|----------------|---------------------|------|
-| 4.1.1 | **L2** Auto | `ScreenCaptureAllowed = false` | Linux | PATCH, toggle **off** (risky) |
+| 4.1.1 | **L2** Auto | `ScreenCaptureAllowed = false` | Linux | PATCH, risky |
 | 4.2.1 | **L2** Auto | `DefaultSerialGuardSetting = 2` | Linux | PATCH |
 | 4.2.2 | **L2** Auto | `DefaultSensorsSetting = 2` | Linux | PATCH |
 | 4.2.3 | L1 Manual | `ClipboardAllowedForUrls = [<urls>]` | Linux | SITE: report; applies only if site value set |
@@ -206,16 +207,16 @@ Second check: the VM test (D-3) wrote the policy into the JSON file → `chrome:
 | 4.2.6 | **L2** Auto | `DefaultWindowManagementSetting = 2` | Linux | PATCH |
 | 4.2.7 | **L2** Manual | `WindowManagementAllowedForUrls = [<urls>]` | Linux | SITE: report; applies only if site value set |
 | 4.2.8 | **L2** Manual | `WindowManagementBlockedForUrls = [<urls>]` | Linux | SITE: report; applies only if site value set |
-| 4.3 | **L2** Auto | `AllowFileSelectionDialogs = false` | Linux | PATCH, toggle **off** (risky) |
-| 4.4 | **L2** Auto | `AudioCaptureAllowed = false` | Linux | PATCH, toggle **off** (risky) |
-| 4.5 | **L2** Auto | `VideoCaptureAllowed = false` | Linux | PATCH, toggle **off** (risky) |
+| 4.3 | **L2** Auto | `AllowFileSelectionDialogs = false` | Linux | PATCH, risky |
+| 4.4 | **L2** Auto | `AudioCaptureAllowed = false` | Linux | PATCH, risky |
+| 4.5 | **L2** Auto | `VideoCaptureAllowed = false` | Linux | PATCH, risky |
 | 4.6 | L1 Auto | `UserFeedbackAllowed = false` | Linux | PATCH |
-| 4.7 | **L2** Auto | `DnsOverHttpsMode = "secure"` | Linux | PATCH, toggle **off** (risky) |
+| 4.7 | **L2** Auto | `DnsOverHttpsMode = "secure"` | Linux | PATCH, risky |
 | 4.8 | **L2** Auto | `AutofillAddressEnabled = false` | Linux | PATCH |
 | 4.9 | L1 Auto | `AutofillCreditCardEnabled = false` | Linux | PATCH |
 | 4.10 | L1 Auto | `ImportSavedPasswords = false` | Linux | PATCH |
 | 4.11 | L1 Auto | `SyncTypesListDisabled = ["passwords"]` | Linux | PATCH |
-| 4.12 | **L2** Auto | `ScreenCaptureAllowed = false` | Linux | PATCH, toggle **off** (risky) (follows 4.1.1: same policy) |
+| 4.12 | **L2** Auto | `ScreenCaptureAllowed = false` | Linux | PATCH, risky (follows 4.1.1: same policy) |
 
 ## Section 5: Forensics (3 rules)
 

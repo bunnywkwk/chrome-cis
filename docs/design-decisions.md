@@ -56,6 +56,17 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
   Per-rule variables (not only a skip list) so users can switch a rule **on** by name and see all rules in defaults.
 - **Evidence:** benchmark-summary §3 (Impact column of each rule).
 - **Not adopted:** a global "disruptive" switch (removed in `mongodb8_cis`, D6 there: hides which rules it covers).
+- **Revised 2026-10-08 (user decision): risky rules now default to `true`.** The role = full CIS by default; the
+  site turns off what it can't accept in `group_vars` (`chrome_cis_rule_4_7: false`).
+  - **Why:** `group_vars` then holds only the site's exceptions, the same list as the compliance record's exceptions
+    table; nothing is silently skipped by the role. Still safe by default for most of them: 11 of the 12 are Level 2,
+    and Level 2 is off by default. With plain defaults only **2.3.3** (L1, removes every extension not in
+    `chrome_cis_extension_allowlist`) is a risky rule that applies.
+  - **Kept:** the `# WARNING:` comment on each toggle, and the effect of each one in
+    [user-view.md](user-view.md) (Risky rules table).
+  - **Evidence:** 4.7 on the full-benchmark run 2026-10-08: every site "can't be reached" (no DoH server). The others:
+    CIS Impact section + Google's policy description; to be seen on the VMs.
+  - Deviates from the Lockdown convention ("disruptive = off") used in `mongodb8_cis`, which keeps it.
 
 ## D6. SITE rules: report by default, applied only when the site sets a value
 

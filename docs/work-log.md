@@ -33,4 +33,14 @@ rule's Linux equivalent (the Chrome policy) must be proven on each RHEL version,
 
 | 19 | Wrap-up: updated root `CLAUDE.md` (chrome_cis active), copied it to `docs/CLAUDE.md`, wrote the **session handoff** | continue on another machine or in a new session with the same context | [session-handoff.md](session-handoff.md), [CLAUDE.md](CLAUDE.md) |
 
-**Next:** type batches 1–5 from the build guide; test on the VMs (from `pre-chrome`).
+## 2026-10-08: typed code, first VM runs
+
+| # | What we did | Why | Result / where |
+|---|-------------|-----|----------------|
+| 20 | The user typed `tasks/` and the 4 computed vars; Claude reviewed and fixed 14 typing errors | the role must match the tested code | lint passes; Rocky 9 container: install + L2 `changed=5`, rerun `changed=0`, 79 policies |
+| 21 | First VM run (L2 + site values), then the full benchmark | prove the role on real hosts | `applied 83 ... total 118`; with 4.7 on, every site "can't be reached" ([user-view.md](user-view.md)) |
+| 22 | RHEL 8 run without the 2.16 venv failed at `package_facts` | newer ansible-core picks Python 3.12 on RHEL 8 | [troubleshooting.md](troubleshooting.md) T-C2 |
+| 23 | **Risky rules now `true` by default** (user decision) | role = full CIS; `group_vars` lists only the site's exceptions | [design-decisions.md](design-decisions.md) D5 revised; defaults give 66 policies |
+| 24 | Wrote [user-view.md](user-view.md): what a Chrome user notices, risky rules and their effect | evidence from the browser, not only the file | to fill "seen" on the VMs |
+
+**Next:** RHEL 8/10 runs with the 2.16 venv; `chrome://policy` screenshots; mark user-view rows "seen".

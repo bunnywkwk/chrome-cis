@@ -31,7 +31,7 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 - **Users notice**: from CIS *Impact*. "none (default)" = Chrome already behaves this way.
 - **Plan**: first idea only, to be confirmed.
   - `set` = write the policy; low risk.
-  - `set (risky)` = write it, but it can break things for users; toggle **off by default** with a `# WARNING:` (candidate).
+  - `set (risky)` = write it, but it can break things for users; own toggle with a `# WARNING:`; on by default since D5 was revised 2026-10-08, the site turns it off.
   - `site` = Manual rule whose value the organisation decides: report by default, optional site variable (CLAUDE.md principle 5).
   - `report` = Manual rule, report only.
   - `win?` = probably Windows-only or retired; **verify** in discovery before classifying `na_os`.
@@ -211,7 +211,7 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 |-------|-------------|-------------------------------------------------------|
 | Config mechanism | ~100 of 118 rules are "policy X = value Y" | CLAUDE.md "single declarative artifact" pattern: rules as data in `vars/`, one task renders the managed-policy JSON; skip by rule ID |
 | Absent-policy rules | 1.2.1, 1.10–1.12, 1.25–1.27, 1.29, 2.2.5, 2.25 | our JSON simply doesn't contain them; an AUDIT step reports if **another** file in the policy dir sets them |
-| Risky rules (`set (risky)`) | 2.2.3, 2.3.3, 2.4.1, 2.5.1, 2.12, 2.17, 2.18, 3.1.1, 4.1.1/4.12, 4.3, 4.4, 4.5, 4.7 | own toggle `false` + `# WARNING:` (mostly L2; 2.3.3 and 2.17 are L1) |
+| Risky rules (`set (risky)`) | 2.2.3, 2.3.3, 2.4.1, 2.5.1, 2.12, 2.17, 2.18, 3.1.1, 4.1.1/4.12, 4.3, 4.4, 4.5, 4.7 | own toggle + `# WARNING:` (on by default since 2026-10-08, D5) (mostly L2; 2.3.3 and 2.17 are L1) |
 | Manual with a site value (`site`) | 1.2.2, 1.9, 2.3.5, 2.6.1, 2.8.1, 2.8.3, 2.9.1, 2.17, 2.27, 4.2.3, 4.2.4, 4.2.7, 4.2.8 (+ allowlists for 2.3.3, 2.5.1) | report by default; optional site variable writes the policy. Lists are simple (list of strings), so they fit [keep-options-simple] |
 | Not applicable on RHEL (confirmed 2026-10-07) | **16**: Windows-only 2.8.2, 2.10.1, 2.30, 3.13; removed from Chrome 1.10, 1.19, 2.3.4, 2.3.5, 2.3.6, 2.7.1, 2.9.1, 2.23, 2.29, 3.6; Google Update 2.1.1, 2.1.2 | not implemented; evidence: Google's Chrome 155 policy list + VM test ([cis-requirements.md](cis-requirements.md)) |
 | Possibly obsolete in current Chrome | 1.10, 2.3.2 (Chrome Apps), 2.3.6 (MV2), 2.9.1 (First-Party Sets), 2.7.1 (Cloud Print) | check `chrome://policy` on the installed version: unknown policies show as errors |
@@ -224,7 +224,7 @@ status, rationale, impact, audit, remediation, default value) and `cis-pdf/CIS_G
 | 2026-10-07 | **Target = Google Chrome (`google-chrome-stable`) on RHEL 8, 9 and 10.** Chromium comes later, as a separate step, only if the benchmark can be applied to it | CIS has a Chrome benchmark but none for Chromium; using the benchmark's own product avoids the "substitute benchmark" mapping for now |
 | 2026-10-07 | **Windows-only rules are not implemented.** They are listed as `na_os` in the requirements matrix with evidence (Google's policy list "Supported on"), so the matrix still covers all 118 IDs | the role runs on RHEL only; CIS IDs are kept, never renumbered |
 | 2026-10-07 | **Both levels are implemented.** Defaults: `level_1: true`, `level_2: false` (Level 2 = L1 + L2, switched on by the site) | CIS Profile Definitions (PDF p. 14): L1 = "practical and prudent… not inhibit the utility"; L2 = "security more critical than usability… may negatively inhibit the utility". L2 limits features for browser users; it does not lock admins out of the server |
-| 2026-10-07 | **Per-rule risk toggles are separate from levels.** A rule that breaks things for users gets its own toggle `false` + `# WARNING:`, whatever its level (as `mongodb8_cis` 2.1/2.2, which are L1 but off). Chrome L1 candidates: 2.3.3 (removes all extensions), 2.17 (proxy) | level = CIS's security/usability profile; the risk toggle = our safety switch for the site |
+| 2026-10-07 | **Per-rule risk toggles are separate from levels.** A rule that breaks things for users gets its own toggle + `# WARNING:` (on by default since 2026-10-08, D5), whatever its level (as `mongodb8_cis` 2.1/2.2, which are L1 but off). Chrome L1 candidates: 2.3.3 (removes all extensions), 2.17 (proxy) | level = CIS's security/usability profile; the risk toggle = our safety switch for the site |
 | 2026-10-07 | **Install is opt-in** (`chrome_cis_install: false`). Not installed and install off → skip message, clean end | same as `mongodb8_cis`; CLAUDE.md "Install is opt-in" |
 | 2026-10-07 | **Candidate pattern: data-driven** (one data list of policies in `vars/`, one task writes one JSON policy file), not one task per rule. To be confirmed in discovery and recorded in `design-decisions.md` | all ~100 applicable rules use the same mechanism (policy name = value); MongoDB rules each used different mechanisms |
 | 2026-10-07 | **Test VMs = the same 3 Proxmox VMs** (rhel8/9/10, "Server with GUI", MongoDB already on them), new snapshot before Chrome work for rollback | GUI present, so `chrome://policy` can be checked on each OS; Chrome policies don't touch MongoDB |
