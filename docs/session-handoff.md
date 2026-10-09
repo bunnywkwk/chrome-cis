@@ -101,7 +101,7 @@ branch were deleted on 2026-10-09 (local and GitHub); their reasoning stays in d
 | Evidence | you drop screenshots, say "check it"; Claude reads each image, checks the command is right, renames `NN-<os>-<scenario>-<result>.png`, indexes it in `test-results.md` |
 | Docs | Claude writes all docs; every doc has what / why / evidence; decisions changed → marked "Revised <date>"; **no emojis** (Pass / Fail / N/A / Yes / No) |
 | Standup | short entry per day in `docs/standup.md` |
-| Safety | Claude never commits or pushes unless asked; never hardens your workstation (commands for it are given to you to run); never commits CIS PDFs/spreadsheets |
+| Safety | Claude never commits or pushes unless asked, names every commit it makes, and **never adds a `Co-Authored-By: Claude` line** (user decision 2026-10-09); never hardens your workstation (commands for it are given to you to run); never commits CIS PDFs/spreadsheets |
 | Errors | every error gets a troubleshooting entry with the exact output, cause, fix, prevent |
 
 ## 7. `defaults/main.yml` and `vars/main.yml`
