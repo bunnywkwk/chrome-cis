@@ -7,28 +7,29 @@ New Claude session: say *"read `chrome_cis/docs/session-handoff.md` and `chrome_
 
 ## 1. Where we are (2026-10-09)
 
-The role is being **rebuilt in the Ansible Lockdown layout** (team review: follow Lockdown / `mongodb8_cis` best
-practice). Branch **`lockdown`** (from `staging`). Design: [design-decisions.md](design-decisions.md) D3 revised.
+The role is built in the **Ansible Lockdown layout** (team review: follow Lockdown / `mongodb8_cis` best practice)
+and lives on **`staging`**. Design: [design-decisions.md](design-decisions.md) D3 revised, D15.
 
 | Phase | Status |
 |-------|--------|
-| Benchmark, requirements matrix, discovery, decisions D1–D14 | Done (still valid; D3 revised) |
-| Data-driven builds A / B / C | Done and tested; kept on `staging`, `staging-option-b`, `staging-option-c` as history only |
-| **Lockdown rebuild** | **Next**: build guide per section, you type it section by section |
-| VM test, compliance record, README | after the rebuild |
+| Benchmark, requirements matrix, discovery, decisions D1–D15 | Done |
+| Lockdown build: 5 sections, one task per rule (118 rule tasks) | Done; lint passes; container tests in [work-log.md](work-log.md) items 35–39 |
+| Browser choice (Chrome / Chromium) and exact version | Done (D15); containers: Chrome pinned 144, Chromium from EPEL 8/9 |
+| VM tests | Chrome Level 2 OK; Chrome 144 run showed the N/A policies as "Error" (unknown); Chromium and Chrome 143 on a VM still to do |
+| README, compliance record | Next |
 
-## 2. Target structure
+## 2. Structure
 
 ```
-tasks/main.yml              prelim -> install -> section_1..5 -> post
-tasks/prelim.yml            checks, package_facts, stop if Chrome missing, start the policy set
-tasks/install.yml           unchanged
+tasks/main.yml              prelim (always) -> install (opt-in) -> section_1..5 (switches) -> post (always)
+tasks/prelim.yml            version/OS checks, package_facts, stop if the browser is missing, start the policy set
+tasks/install.yml           Chrome: Google key, repo, package or exact-version RPM; Chromium: EPEL key, epel-release, chromium
 tasks/section_<n>/main.yml  imports the cis_<n>.x.yml files of that section
 tasks/section_<n>/cis_*.yml one task per CIS rule, benchmark order
-tasks/post.yml              write chrome_cis.json (one copy), report
+tasks/post.yml              write chrome_cis.json (one copy), short report
 ```
 
-Each rule (CLAUDE.md task template) evaluates itself and adds its policy; `post.yml` writes one file:
+Each rule evaluates itself and adds its policy; `post.yml` writes one file:
 
 ```yaml
 - name: "1.1.1 | PATCH | Ensure 'Cross-origin HTTP Authentication prompts' is set to 'Disabled'"
@@ -40,29 +41,37 @@ Each rule (CLAUDE.md task template) evaluates itself and adds its policy; `post.
     chrome_cis_policies: "{{ chrome_cis_policies | combine({'AllowCrossOriginAuthPrompt': false}) }}"
 ```
 
-- **Full run:** the policy set starts empty, so `chrome_cis.json` always matches the settings (rule off = removed).
-  **`--tags` / `--skip-tags` run:** starts from the current file, only the selected rules change.
-- **Site rules:** the task runs only when the site value is set (`is not none` / `| length > 0`); the report lists
-  the ones not set. **N/A rules:** no task; listed in the report (`chrome_cis_not_applicable`). **4.12:** own task,
-  same policy as 4.1.1, follows `chrome_cis_rule_4_1_1`.
-- **Tailoring for users:** levels, `chrome_cis_section1..5`, one `chrome_cis_rule_<id>` per rule, site values; all in
-  `group_vars`, as in `mongodb8_cis`.
+- **Full run:** the policy set starts empty, so `chrome_cis.json` matches the settings (rule off = removed).
+  **`--tags` / `--skip-tags` run:** starts from the current file (prelim `slurp`), only the selected rules change.
+- **Site rules:** run only when the site value is set (`is not none` / `| length > 0`).
+- **N/A rules (14 with a Chrome policy):** normal tasks, tag `not_applicable`, switches **on** by default, grouped at
+  the end of `defaults/`; Chrome 144/155 shows them as "Error" (unknown policy), so a site sets `false` where its
+  version doesn't support them. 2.1.1/2.1.2 (Google Update): comments only.
+- **4.12:** own task, same policy as 4.1.1, follows `chrome_cis_rule_4_1_1`.
+- **Browser / version:** `chrome_cis_browser: chrome | chromium`, `chrome_cis_version: ""` (exact version; Chrome:
+  Google keeps about a year, oldest today `143.0.7499.40`, W-5; Chromium: EPEL keeps only the current one, EPEL 8 is
+  frozen at 133). The role never downgrades.
+- **Tailoring for users:** `group_vars` only: browser, version, install, levels, `chrome_cis_section1..5`, one
+  `chrome_cis_rule_<id>` per rule, site values (under their rule in `defaults/`).
+- **Removed on purpose (user decisions):** the role-settings assert, the conflict check for other policy files
+  (not CIS scope), the long report.
 
 ## 3. Branches (`github.com/bunnywkwk/chrome-cis`)
 
 | Branch | Holds |
 |--------|-------|
-| `lockdown` | **the rebuild** (new) |
-| `staging` | Option A (rule list + Jinja loop), tested; used by the test project until `lockdown` is ready |
-| `staging-option-b`, `staging-option-c` | Option B (`set_fact` loop), Option C (baseline files); history, untouched |
+| `staging` | **the role** (Lockdown layout), used by the test project (`requirements.yml` → `version: staging`) |
+| `main` | first commit only; merge `staging` into it when the role is released |
+
+The data-driven variants (rule list + Jinja loop, `set_fact` loop, baseline JSON files) and the `lockdown` work
+branch were deleted on 2026-10-09 (local and GitHub); their reasoning stays in design-decisions D3 and the work log.
 
 ## 4. Next steps
 
-1. Done 2026-10-09 (Claude wrote it at the user's request): all 5 sections, `main.yml`, prelim start, `post.yml`,
-   `vars/` trimmed, section switches in `defaults/`. Lint passes; container tests in [work-log.md](work-log.md).
-2. **You test on the VMs** from `pre-chrome`: test project `requirements.yml` → `version: lockdown`; `group_vars`
-   unchanged (toggles + site values; add `chrome_cis_section<n>: false` to try a section switch).
-3. README, compliance record.
+1. VM tests from `pre-chrome`: Chrome 143.0.7499.40 (`chrome_cis_version`), Chromium (`chrome_cis_browser:
+   chromium`); check `chrome://policy`; decide whether the N/A switches stay on by default.
+2. README (CLAUDE.md "End-user experience"), compliance record, screenshots indexed in `test-results.md`.
+3. Merge `staging` into `main` when released.
 
 ## 5. The mindset (why the role looks like this)
 

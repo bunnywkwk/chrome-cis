@@ -51,3 +51,20 @@ The `rpm` (and `dnf`) Python bindings exist only for RHEL 8's system Python 3.6 
 
 **Prevent:** always activate the 2.16 venv before running the test project (`docs/control-node-setup.md`); prelim
 only asserts `>= 2.16.1`, so a newer core passes the check and fails here on RHEL 8.
+
+## T-C5. Chromium install: "Failed to download metadata for repo 'epel'"
+
+**When:** 2026-10-09, container test, clean Rocky 9, `chrome_cis_browser: chromium`, `chrome_cis_install: true`, first
+run. The EPEL key and `epel-release` were installed; the Chromium install failed.
+
+```text
+fatal: [ce9]: FAILED! => {"changed": false, "msg": "Failed to download metadata for repo 'epel': Yum repo downloading error: Downloading error(s): repodata/af4e6d44470ba0ca54e240b7fc075ec1d55485d1ece9eb931cbde10acd5371e8-filelists.xml.xz - Cannot download, all mirrors were already tried without success; repodata/99a82c6df15885ab18e74f861779eb555ded72a8dc116d0d91d99f0f166ffc90-updateinfo.xml.bz2 - Cannot download, all mirrors were already tried without success", "rc": 1, "results": []}
+```
+
+**Cause:** EPEL's mirrors did not serve two metadata files at that moment (outside the role). Rocky 8 in the same run
+worked.
+
+**Fix:** run the playbook again: the rerun installed Chromium and wrote the policy file (`changed=3`).
+
+**Prevent:** nothing in the role for now (a one-off mirror problem). If it repeats, add `retries`/`until` to the
+Chromium install task.

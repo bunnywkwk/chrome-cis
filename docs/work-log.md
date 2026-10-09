@@ -58,4 +58,6 @@ rule's Linux equivalent (the Chrome policy) must be proven on each RHEL version,
 | 38 | `chrome_cis_browser` (chrome / chromium) and `chrome_cis_version` (exact version) | Chrome or Chromium, pinned version | D15; container: Chrome pinned 144.0.7559.132 installed and kept on rerun (`changed=0`); Chromium 154.0.8037.92 from EPEL 9, file in `/etc/chromium/policies/managed/`, rerun `changed=0` |
 | 39 | N/A rules as tasks (tag `not_applicable`), switches **on** by default, grouped in defaults | test them on older Chrome / Chromium | D8 revised; Level 1 now 76 policies, Level 2 103 |
 
-**Next:** VM tests: Chrome 143.0.7499.40 and Chromium; `chrome://policy` decides which N/A rules work where.
+| 40 | Role enables EPEL for Chromium (EPEL key + `epel-release`); `lockdown` fast-forwarded into `staging`; branches `lockdown`, `staging-option-b`, `staging-option-c` deleted (local + GitHub) | user settled on the Lockdown version; one working branch | Rocky 8: EPEL + Chromium 133 installed, rerun `changed=0`; Rocky 9: mirror error once (T-C5), rerun OK |
+
+**Next:** VM tests: Chrome 143.0.7499.40 and Chromium; `chrome://policy` decides which N/A rules work where; README.
