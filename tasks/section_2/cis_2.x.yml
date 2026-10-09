@@ -156,6 +156,19 @@
   ansible.builtin.set_fact:
     chrome_cis_policies: "{{ chrome_cis_policies | combine({'EncryptedClientHelloEnabled': true}) }}"
 
+- name: "2.23 | PATCH | Ensure 'Determines whether the built-in certificate verifier will enforce constraints encoded into trust anchors loaded from the platform trust store' Is Enabled"
+  when:
+    - chrome_cis_level_2
+    - chrome_cis_rule_2_23
+  tags:
+    - level2
+    - automated
+    - patch
+    - rule_2.23
+    - not_applicable
+  ansible.builtin.set_fact:
+    chrome_cis_policies: "{{ chrome_cis_policies | combine({'EnforceLocalAnchorConstraintsEnabled': true}) }}"
+
 - name: "2.24 | PATCH | Ensure 'Keep browsing data when creating enterprise profile by default' Is Enabled"
   when:
     - chrome_cis_level_1
@@ -221,6 +234,32 @@
     - attack_surface
   ansible.builtin.set_fact:
     chrome_cis_policies: "{{ chrome_cis_policies | combine({'HttpsUpgradesEnabled': true}) }}"
+
+- name: "2.29 | PATCH | Ensure 'Insecure Hashes in TLS Handshakes Enabled' Is Disabled"
+  when:
+    - chrome_cis_level_1
+    - chrome_cis_rule_2_29
+  tags:
+    - level1
+    - automated
+    - patch
+    - rule_2.29
+    - not_applicable
+  ansible.builtin.set_fact:
+    chrome_cis_policies: "{{ chrome_cis_policies | combine({'InsecureHashesInTLSHandshakesEnabled': false}) }}"
+
+- name: "2.30 | PATCH | Ensure 'Enable Renderer App Container' Is Enabled"
+  when:
+    - chrome_cis_level_1
+    - chrome_cis_rule_2_30
+  tags:
+    - level1
+    - automated
+    - patch
+    - rule_2.30
+    - not_applicable
+  ansible.builtin.set_fact:
+    chrome_cis_policies: "{{ chrome_cis_policies | combine({'RendererAppContainerEnabled': true}) }}"
 
 - name: "2.31 | PATCH | Ensure 'Enable strict MIME type checking for worker scripts' Is Enabled"
   when:

@@ -11,31 +11,21 @@ chrome_cis_channels: [stable, beta, unstable, canary]
 chrome_cis_repo_baseurl: https://dl.google.com/linux/chrome/rpm/stable/x86_64
 chrome_cis_repo_key_url: https://dl.google.com/linux/linux_signing_key.pub
 
-# Chrome reads every *.json here as mandatory machine policy; the role owns one file (D2)
-chrome_cis_policy_dir: /etc/opt/chrome/policies/managed
+# Per browser: installed package name and the folder the browser reads its managed policies from (D2)
+chrome_cis_browsers:
+  chrome:
+    package: "google-chrome-{{ chrome_cis_channel }}"
+    policy_dir: /etc/opt/chrome/policies/managed
+  chromium:
+    package: chromium
+    policy_dir: /etc/chromium/policies/managed
+
+chrome_cis_package: "{{ chrome_cis_browsers[chrome_cis_browser].package }}"
+chrome_cis_policy_dir: "{{ chrome_cis_browsers[chrome_cis_browser].policy_dir }}"
 chrome_cis_policy_file: chrome_cis.json
 
-# Installed google-chrome-* packages as {name: version}, e.g. {"google-chrome-stable": "155.0.8059.39"} (D10)
-# Empty dict = Chrome not installed (prelim checks its length); the report prints it as is.
+# Installed browser package as {name: version}, e.g. {"google-chrome-stable": "155.0.8059.39"} (D10)
+# Empty dict = not installed (prelim checks its length); the report prints it as is.
 chrome_cis_installed: >-
-  {{ ansible_facts['packages'] | default({}) | dict2items | selectattr('key', 'match', '^google-chrome-')
+  {{ ansible_facts['packages'] | default({}) | dict2items | selectattr('key', 'eq', chrome_cis_package)
      | map(attribute='value') | map('first') | items2dict(key_name='name', value_name='version') }}
-
-# Not applicable on RHEL (D8): no task; listed in the report so all 118 rules are accounted for
-chrome_cis_not_applicable:
-  - "1.10 not in Chrome 155 policy list (removed)"
-  - "1.19 not in Chrome 155 policy list (removed; was Windows only)"
-  - "2.1.1 Google Update setting, not a Chrome policy (Windows/macOS updater)"
-  - "2.1.2 Google Update setting, not a Chrome policy (Windows/macOS updater)"
-  - "2.3.4 not in Chrome 155 policy list (removed)"
-  - "2.3.5 not in Chrome 155 policy list (removed)"
-  - "2.3.6 not in Chrome 155 policy list (removed)"
-  - "2.7.1 not in Chrome 155 policy list (removed)"
-  - "2.8.2 Windows only"
-  - "2.9.1 not in Chrome 155 policy list (removed)"
-  - "2.10.1 Windows only"
-  - "2.23 not in Chrome 155 policy list (removed)"
-  - "2.29 not in Chrome 155 policy list (removed)"
-  - "2.30 Windows only"
-  - "3.6 not in Chrome 155 policy list (removed; was Windows only)"
-  - "3.13 Windows only"

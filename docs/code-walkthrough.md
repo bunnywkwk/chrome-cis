@@ -57,9 +57,8 @@ Internal values only; no rule list (D3 revised).
 | Key | Does | Why |
 |-----|------|-----|
 | `chrome_cis_repo_baseurl`, `_repo_key_url` | Google's repo and key URLs | D9; one repo for all channels (W-2) |
-| `chrome_cis_policy_dir`, `_policy_file` | `/etc/opt/chrome/policies/managed/chrome_cis.json` | D2 |
+| `chrome_cis_browsers`, `chrome_cis_package`, `chrome_cis_policy_dir` | package name and policy folder of the chosen browser (Chrome: `/etc/opt/chrome/policies/managed`, Chromium: `/etc/chromium/policies/managed`) | D15 |
 | `chrome_cis_installed` | `{name: version}` of installed `google-chrome-*` packages; `{}` = not installed | D10; prelim checks its length, report prints it |
-| `chrome_cis_not_applicable` | the 16 N/A rules with reason | no task; report accounts for all 118 rules (D8) |
 
 ## tasks/prelim.yml
 
@@ -73,10 +72,15 @@ Internal values only; no rule list (D3 revised).
 
 ## tasks/install.yml
 
+Opt-in install of the chosen browser (D9, D15).
+
 | Key | Does | Why |
 |-----|------|-----|
-| `rpm_key` → `yum_repository` → `dnf` | key, repo, package in that order | D9, T-C1 |
-| `package_facts` again | refresh versions for the report | simpler than a conditional (ansible-lint `no-handler`) |
+| Chrome block: `rpm_key` → `yum_repository` → `dnf` | Google's key, repo, then the package | key first: T-C1 |
+| Chrome `dnf name`: package or RPM URL | empty `chrome_cis_version` = `google-chrome-<channel>` from the repo; a version = its file on Google's server | the repo index lists only the newest build (W-5) |
+| Chromium `dnf name`: `chromium` or `chromium-<version>` | from EPEL (site enables EPEL first) | D15 |
+| `state: present` | never upgrades or downgrades an installed browser | D10 |
+| `package_facts` at the end | refresh the installed-package list | `chrome_cis_installed` sees the new package |
 
 ## tasks/section_<n>/main.yml, cis_<n>.x.yml
 
@@ -91,6 +95,7 @@ rules without a subsection). 104 tasks: 102 applicable rules (4.12 has its own t
 | `tags: level<n>, automated/manual, patch, rule_<id>, <topic>` | select or skip by level, rule or topic | Lockdown tags |
 | `set_fact: chrome_cis_policies \| combine({'<Policy>': <CIS value>})` | adds this rule's policy | the file is written once in post (Lockdown auditd pattern) |
 | 4.12 `when: chrome_cis_rule_4_1_1` | same policy as 4.1.1 | one switch for one policy |
+| tag `not_applicable` (14 tasks), switch `true` in defaults | N/A rules (removed from Chrome / Windows only), on like every rule; a site sets `false` where unsupported | D8 revised: test on other versions / Chromium |
 
 ## tasks/post.yml
 

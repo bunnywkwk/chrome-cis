@@ -31,7 +31,7 @@
     - name: "PRELIM | AUDIT | Stop when Chrome is not installed and install is off | Report"
       ansible.builtin.debug:
         msg: >-
-          No google-chrome-* package on {{ inventory_hostname }} and chrome_cis_install is false:
+          No {{ chrome_cis_package }} package on {{ inventory_hostname }} and chrome_cis_install is false:
           nothing to harden.
 
     - name: "PRELIM | AUDIT | Stop when Chrome is not installed and install is off | End this host"

@@ -91,6 +91,19 @@
   ansible.builtin.set_fact:
     chrome_cis_policies: "{{ chrome_cis_policies | combine({'ChromeVariations': chrome_cis_variations}) }}"
 
+- name: "1.10 | PATCH | Ensure 'Disable Certificate Transparency enforcement for a list of Legacy Certificate Authorities' is set to 'Disabled'"
+  when:
+    - chrome_cis_level_1
+    - chrome_cis_rule_1_10
+  tags:
+    - level1
+    - automated
+    - patch
+    - rule_1.10
+    - not_applicable
+  ansible.builtin.set_fact:
+    chrome_cis_policies: "{{ chrome_cis_policies | combine({'CertificateTransparencyEnforcementDisabledForLegacyCas': []}) }}"
+
 - name: "1.11 | PATCH | Ensure 'Disable Certificate Transparency enforcement for a list of subjectPublicKeyInfo hashes' is set to 'Disabled'"
   when:
     - chrome_cis_level_1
@@ -194,6 +207,19 @@
     - enforced_defaults
   ansible.builtin.set_fact:
     chrome_cis_policies: "{{ chrome_cis_policies | combine({'CommandLineFlagSecurityWarningsEnabled': true}) }}"
+
+- name: "1.19 | PATCH | Ensure 'Enable third party software injection blocking' is set to 'Enabled'"
+  when:
+    - chrome_cis_level_1
+    - chrome_cis_rule_1_19
+  tags:
+    - level1
+    - automated
+    - patch
+    - rule_1.19
+    - not_applicable
+  ansible.builtin.set_fact:
+    chrome_cis_policies: "{{ chrome_cis_policies | combine({'ThirdPartyBlockingEnabled': true}) }}"
 
 - name: "1.20 | PATCH | Ensure 'Enables managed extensions to use the Enterprise Hardware Platform API' is set to 'Disabled'"
   when:

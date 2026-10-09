@@ -1,13 +1,22 @@
 ---
 # CIS Google Chrome Benchmark v3.0.0 for RHEL 8/9/10. Override any of these in group_vars.
 
-## Install
+## Browser and install
 
-# Install Chrome from Google's repo; false = harden an existing install
+# Browser to harden: chrome (Google Chrome) or chromium (Chromium from EPEL)
+chrome_cis_browser: chrome
+
+# Install the browser; false = harden an existing install only
+# Chromium needs EPEL enabled on the host first
 chrome_cis_install: false
 
-# stable, beta, unstable or canary
+# Google Chrome channel: stable, beta, unstable or canary
 chrome_cis_channel: stable
+
+# Exact version to install, e.g. "144.0.7559.132"; empty = newest available
+# Chrome: Google keeps about one year of old versions (docs/platform-notes.md W-5)
+# Chromium: only versions still in EPEL
+chrome_cis_version: ""
 
 ## Profiles
 
@@ -71,8 +80,6 @@ chrome_cis_rule_1_9: true
 # 1.9 value: 0 = all variations (the CIS value)
 chrome_cis_variations: null
 
-# 1.10 not applicable on RHEL: removed from Chrome
-
 # 1.11 No certificate authorities exempt from Certificate Transparency
 chrome_cis_rule_1_11: true
 
@@ -96,8 +103,6 @@ chrome_cis_rule_1_17: true
 
 # 1.18 Warn when Chrome starts with dangerous command-line flags
 chrome_cis_rule_1_18: true
-
-# 1.19 not applicable on RHEL: removed from Chrome
 
 # 1.20 Extensions can't use the hardware platform API
 chrome_cis_rule_1_20: true
@@ -133,10 +138,6 @@ chrome_cis_rule_1_29: true
 
 ### 2.1 Google Update
 
-# 2.1.1 not applicable on RHEL: Google Update setting
-
-# 2.1.2 not applicable on RHEL: Google Update setting
-
 ### 2.2 Content settings
 
 # 2.2.1 Block HTTP content inside HTTPS pages
@@ -170,12 +171,6 @@ chrome_cis_rule_2_3_3: true
 # 2.3.3 value: extension IDs still allowed, e.g. a password manager
 chrome_cis_extension_allowlist: []
 
-# 2.3.4 not applicable on RHEL: removed from Chrome
-
-# 2.3.5 not applicable on RHEL: removed from Chrome
-
-# 2.3.6 not applicable on RHEL: removed from Chrome
-
 # 2.3.7 Disable extensions removed from the Web Store
 chrome_cis_rule_2_3_7: true
 
@@ -204,8 +199,6 @@ chrome_cis_password_manager_enabled: null
 
 ### 2.7 Printing
 
-# 2.7.1 not applicable on RHEL: removed from Chrome
-
 ### 2.8 Remote access (Chrome Remote Desktop)
 
 # 2.8.1 Chrome Remote Desktop to this machine
@@ -213,8 +206,6 @@ chrome_cis_rule_2_8_1: true
 
 # 2.8.1 value: false (CIS), or true if Chrome Remote Desktop is approved
 chrome_cis_remote_access_connections: null
-
-# 2.8.2 not applicable on RHEL: Windows only
 
 # 2.8.3 Domains allowed to connect with Chrome Remote Desktop
 chrome_cis_rule_2_8_3: true
@@ -236,11 +227,7 @@ chrome_cis_rule_2_8_7: true
 
 ### 2.9 First-Party Sets
 
-# 2.9.1 not applicable on RHEL: removed from Chrome
-
 ### 2.10 Microsoft Active Directory
-
-# 2.10.1 not applicable on RHEL: Windows only
 
 ### 2.x Other
 
@@ -285,8 +272,6 @@ chrome_cis_rule_2_21: true
 # 2.22 Hide the site name in the TLS handshake (Encrypted Client Hello)
 chrome_cis_rule_2_22: true
 
-# 2.23 not applicable on RHEL: removed from Chrome
-
 # 2.24 Keep browsing data when an enterprise profile is created
 chrome_cis_rule_2_24: true
 
@@ -304,10 +289,6 @@ chrome_cis_http_allowlist: []
 
 # 2.28 Upgrade HTTP to HTTPS when possible
 chrome_cis_rule_2_28: true
-
-# 2.29 not applicable on RHEL: removed from Chrome
-
-# 2.30 not applicable on RHEL: Windows only
 
 # 2.31 Worker scripts need a proper JavaScript MIME type
 chrome_cis_rule_2_31: true
@@ -342,8 +323,6 @@ chrome_cis_rule_3_4: true
 # 3.5 No signing in to Chrome with a Google account
 chrome_cis_rule_3_5: true
 
-# 3.6 not applicable on RHEL: removed from Chrome
-
 # 3.7 No sync to Google's cloud
 chrome_cis_rule_3_7: true
 
@@ -361,8 +340,6 @@ chrome_cis_rule_3_11: true
 
 # 3.12 Don't send usage and crash reports to Google
 chrome_cis_rule_3_12: true
-
-# 3.13 not applicable on RHEL: Windows only
 
 # 3.14 No search suggestions while typing in the address bar
 chrome_cis_rule_3_14: true
@@ -466,3 +443,61 @@ chrome_cis_rule_5_2: true
 
 # 5.3 Keep a 239 MB disk cache
 chrome_cis_rule_5_3: true
+
+## Not applicable on RHEL / current Chrome
+# On by default, like every rule. Chrome 155 on Linux shows them as "Unknown policy" (docs/cis-requirements.md);
+# set one to false in group_vars where your Chrome version or Chromium doesn't support it.
+
+### Removed from Chrome
+
+# 1.10 No legacy CAs exempt from Certificate Transparency
+chrome_cis_rule_1_10: true
+
+# 1.19 Block third-party software injection
+chrome_cis_rule_1_19: true
+
+# 2.3.4 Partition third-party storage by top-level site
+chrome_cis_rule_2_3_4: true
+
+# 2.3.5 Sites where third-party storage partitioning is turned off
+chrome_cis_rule_2_3_5: true
+
+# 2.3.5 value: e.g. ["https://example.com"]
+chrome_cis_third_party_storage_blocked_origins: []
+
+# 2.3.6 Manifest V2 extensions only when forced by the admin
+chrome_cis_rule_2_3_6: true
+
+# 2.7.1 No Google Cloud Print proxy
+chrome_cis_rule_2_7_1: true
+
+# 2.9.1 No First-Party Sets
+chrome_cis_rule_2_9_1: true
+
+# 2.23 Enforce constraints in local trust anchors
+chrome_cis_rule_2_23: true
+
+# 2.29 No insecure hashes in TLS handshakes
+chrome_cis_rule_2_29: true
+
+# 3.6 No Chrome Cleanup reports to Google
+chrome_cis_rule_3_6: true
+
+### Windows only
+
+# 2.8.2 Remote users can't control elevated windows
+chrome_cis_rule_2_8_2: true
+
+# 2.10.1 Microsoft cloud sign-in
+chrome_cis_rule_2_10_1: true
+
+# 2.30 Renderer App Container
+chrome_cis_rule_2_30: true
+
+# 3.13 Safe Browsing checks for trusted download sources
+chrome_cis_rule_3_13: true
+
+### Google Update (Windows/macOS updater, not a Chrome policy, no switch)
+
+# 2.1.1 Automatic updates on
+# 2.1.2 Update checks not turned off

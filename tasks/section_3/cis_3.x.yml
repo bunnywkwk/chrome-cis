@@ -38,6 +38,19 @@
   ansible.builtin.set_fact:
     chrome_cis_policies: "{{ chrome_cis_policies | combine({'BrowserSignin': 0}) }}"
 
+- name: "3.6 | PATCH | Ensure 'Control how Chrome Cleanup reports data to Google' is set to 'Disabled'"
+  when:
+    - chrome_cis_level_1
+    - chrome_cis_rule_3_6
+  tags:
+    - level1
+    - automated
+    - patch
+    - rule_3.6
+    - not_applicable
+  ansible.builtin.set_fact:
+    chrome_cis_policies: "{{ chrome_cis_policies | combine({'ChromeCleanupReportingEnabled': false}) }}"
+
 - name: "3.7 | PATCH | Ensure 'Disable synchronization of data with Google' is set to 'Enabled'"
   when:
     - chrome_cis_level_1
@@ -115,6 +128,19 @@
     - privacy
   ansible.builtin.set_fact:
     chrome_cis_policies: "{{ chrome_cis_policies | combine({'MetricsReportingEnabled': false}) }}"
+
+- name: "3.13 | PATCH | Ensure 'Enable Safe Browsing for trusted sources' is set to 'Disabled'"
+  when:
+    - chrome_cis_level_1
+    - chrome_cis_rule_3_13
+  tags:
+    - level1
+    - automated
+    - patch
+    - rule_3.13
+    - not_applicable
+  ansible.builtin.set_fact:
+    chrome_cis_policies: "{{ chrome_cis_policies | combine({'SafeBrowsingForTrustedSourcesEnabled': false}) }}"
 
 - name: "3.14 | PATCH | Ensure 'Enable search suggestions' is set to 'Disabled'"
   when:

@@ -138,6 +138,12 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
   policy" errors, so any error there is a real problem (no noise).
 - **Evidence:** cis-requirements.md, "Evidence for the 16 not-applicable rules" (policy template search + VM test).
 
+- **Revised 2026-10-09 (user decision):** the 14 N/A rules that have a Chrome policy are now normal rule tasks
+  (tag `not_applicable`) with a switch, grouped in `defaults/main.yml` under "Not applicable on
+  RHEL / current Chrome" (removed from Chrome / Windows only). **On by default** (user decision, same day): the site
+  sets `false` in `group_vars` where its Chrome version or Chromium doesn't support them. Why: the role now installs other Chrome versions and
+  Chromium (D15); a site can switch one on and check `chrome://policy`. 2.1.1/2.1.2 (Google Update) have no Chrome
+  policy and stay comments. The `chrome_cis_not_applicable` list and its report line were removed.
 ## D9. Install is opt-in; key first, then repo, then package
 
 - **Decision:** `chrome_cis_install: false`. When `true`: import Google's key (`ansible.builtin.rpm_key`), add the repo
@@ -193,6 +199,24 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
   versions (D10).
 
 ---
+
+## D15. Browser choice and exact version (2026-10-09)
+
+- **Decision:** two settings in `defaults/`: `chrome_cis_browser: chrome` (`chrome` or `chromium`) and
+  `chrome_cis_version: ""` (empty = newest; or an exact version). `vars/main.yml` has one small lookup per browser
+  (`chrome_cis_browsers`: package name + policy folder); package detection, install and the policy folder follow it.
+  - **Chrome:** newest = `google-chrome-<channel>` from Google's repo; exact version = the RPM file on Google's server
+    (`<repo>/google-chrome-<channel>-<version>-1.x86_64.rpm`), because the repo index lists only the newest build.
+  - **Chromium:** `chromium` (or `chromium-<version>`) from **EPEL**; enabling EPEL is the site's prerequisite (on RHEL
+    it also needs CodeReady Builder), not done by the role. Policy folder `/etc/chromium/policies/managed`.
+- **Why:** organizations run Chrome or Chromium and sometimes a fixed, older version; one variable each is enough
+  (CLAUDE.md app roles: "variants via a lookup dict", "version selection is one variable").
+- **Evidence:** EPEL package and folder: `dnf repoquery chromium` → `chromium 154.0.8037.97-1.el10_2 epel`,
+  `dnf repoquery -l chromium` → `/etc/chromium/policies` (workstation, EL10). Old Chrome RPMs: platform-notes W-5.
+- **Limits:** the role never downgrades (`state: present`); an exact version only installs if Google (about one
+  year back) or EPEL still has it; a later `dnf update` upgrades unless the site pins it. For Chromium there is no CIS
+  benchmark: the role is "aligned with the CIS Google Chrome Benchmark"; which rules work on Chromium is to be
+  confirmed with `chrome://policy` on a VM (CLAUDE.md "No benchmark for the target", rule mapping later).
 
 ## Not adopted
 

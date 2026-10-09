@@ -295,3 +295,28 @@ same group will be ignored." Groups that contain CIS policies include `Proxy` (2
 **Design impact:** none while our JSON file is the only source. If a site also uses cloud management, a group must
 come from one source: e.g. the extension allowlist (2.3.3 site value) must be in the same file as the blocklist,
 which the role does.
+
+## W-5. Older Chrome versions: what can be installed (2026-10-09)
+
+**Why:** organizations may run an older Chrome than the newest one; check what can still be installed and whether
+the CIS policies work there. Refines W-2 ("one version per channel"): that is true for the repo **index**, not for
+the files on the server.
+
+| Check | Command | Result |
+|-------|---------|--------|
+| Real released versions | `curl -s 'https://versionhistory.googleapis.com/v1/chrome/platforms/linux/channels/stable/versions?pageSize=400'` | newest build per major, e.g. 155.0.8059.39, 154.0.8037.97, ..., 144.0.7559.132, 143.0.7499.192 |
+| Is the RPM still on Google's server? ([evidence-files/chrome-rpm-availability-2026-10-09.txt](evidence-files/chrome-rpm-availability-2026-10-09.txt)) | `curl -sI -o /dev/null -w '%{http_code}' https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-<version>-1.x86_64.rpm` for **every** stable build of majors 138-146 | majors 138-142: none (0 of 4-6 builds); 143: only **143.0.7499.40** (1 of 5); 144-146: all builds. **Oldest downloadable: `143.0.7499.40`** |
+| Oldest Chrome version any CIS policy needs | "since version" per policy in Google's policy template for Chrome 155 (`chrome_policy_list.html`) | **115** (2.3.7 `ExtensionUnpublishedAvailability`, 2.26 `GoogleSearchSidePanelEnabled`); all others older |
+
+**What it means:**
+- About the last 12-13 major versions (roughly one year) can be installed by direct URL, e.g.
+  `dnf install https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-143.0.7499.40-1.x86_64.rpm`.
+  Google does not remove whole majors in order (143 kept its first build, dropped the later ones), so check the exact
+  build. Snapshot of 2026-10-09; Google decides how long files stay.
+- **Revised 2026-10-09 (same day):** a first check of only the newest build per major said "144 is the oldest"; the
+  full check of every build found 143.0.7499.40.
+- Every downloadable version supports all 101 CIS policies (all exist since 115 or earlier).
+- The role's install uses `state: present`: an existing older Chrome is kept, never upgraded. A plain `dnf update`
+  upgrades it to the newest build in Google's repo unless the site pins the version.
+- **To verify on a VM (user test):** install 143.0.7499.40 (or a 144 build) by URL, run the role with `chrome_cis_install: false`, check the
+  report version, `chrome://policy` (all OK), rerun `changed=0`, and that `chrome_cis_install: true` keeps 144.
