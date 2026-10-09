@@ -7,7 +7,7 @@
 chrome_cis_browser: chrome
 
 # Install the browser; false = harden an existing install only
-# Chromium needs EPEL enabled on the host first
+# Chromium: the role enables EPEL first (epel-release from the Fedora project)
 chrome_cis_install: false
 
 # Google Chrome channel: stable, beta, unstable or canary

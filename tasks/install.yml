@@ -25,11 +25,23 @@
              else chrome_cis_repo_baseurl ~ '/' ~ chrome_cis_package ~ '-' ~ chrome_cis_version ~ '-1.x86_64.rpm' }}
         state: present
 
-- name: "INSTALL | Chromium | Install chromium from EPEL {{ chrome_cis_version | default('newest', true) }}"
+- name: "INSTALL | Chromium"
   when: chrome_cis_browser == 'chromium'
-  ansible.builtin.dnf:
-    name: "{{ 'chromium' if chrome_cis_version | length == 0 else 'chromium-' ~ chrome_cis_version }}"
-    state: present
+  block:
+    - name: "INSTALL | Chromium | Import the EPEL signing key"
+      ansible.builtin.rpm_key:
+        key: "{{ chrome_cis_epel_key_url }}"
+        state: present
+
+    - name: "INSTALL | Chromium | Enable EPEL (install epel-release)"
+      ansible.builtin.dnf:
+        name: "{{ chrome_cis_epel_release_url }}"
+        state: present
+
+    - name: "INSTALL | Chromium | Install chromium from EPEL {{ chrome_cis_version | default('newest', true) }}"
+      ansible.builtin.dnf:
+        name: "{{ 'chromium' if chrome_cis_version | length == 0 else 'chromium-' ~ chrome_cis_version }}"
+        state: present
 
 - name: "INSTALL | Refresh installed packages"
   ansible.builtin.package_facts:

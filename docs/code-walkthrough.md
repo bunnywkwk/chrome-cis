@@ -78,7 +78,7 @@ Opt-in install of the chosen browser (D9, D15).
 |-----|------|-----|
 | Chrome block: `rpm_key` → `yum_repository` → `dnf` | Google's key, repo, then the package | key first: T-C1 |
 | Chrome `dnf name`: package or RPM URL | empty `chrome_cis_version` = `google-chrome-<channel>` from the repo; a version = its file on Google's server | the repo index lists only the newest build (W-5) |
-| Chromium `dnf name`: `chromium` or `chromium-<version>` | from EPEL (site enables EPEL first) | D15 |
+| Chromium: `rpm_key` (EPEL key) → `dnf` epel-release URL → `dnf` chromium | enables EPEL, then installs `chromium` or `chromium-<version>` | D15; no CodeReady Builder needed |
 | `state: present` | never upgrades or downgrades an installed browser | D10 |
 | `package_facts` at the end | refresh the installed-package list | `chrome_cis_installed` sees the new package |
 

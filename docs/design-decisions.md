@@ -207,8 +207,11 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
   (`chrome_cis_browsers`: package name + policy folder); package detection, install and the policy folder follow it.
   - **Chrome:** newest = `google-chrome-<channel>` from Google's repo; exact version = the RPM file on Google's server
     (`<repo>/google-chrome-<channel>-<version>-1.x86_64.rpm`), because the repo index lists only the newest build.
-  - **Chromium:** `chromium` (or `chromium-<version>`) from **EPEL**; enabling EPEL is the site's prerequisite (on RHEL
-    it also needs CodeReady Builder), not done by the role. Policy folder `/etc/chromium/policies/managed`.
+  - **Chromium:** `chromium` (or `chromium-<version>`) from **EPEL**. Policy folder `/etc/chromium/policies/managed`.
+    **Revised 2026-10-09 (same day, user decision):** the role enables EPEL itself, two tasks like Chrome's: import the
+    EPEL key (`RPM-GPG-KEY-EPEL-<major>`), install `epel-release-latest-<major>.noarch.rpm` from the Fedora project.
+    CodeReady Builder is **not** needed: with only EPEL enabled, `dnf install --assumeno chromium` resolves on Rocky 8
+    (140 packages), 9 (280) and 10 (298). **EPEL 8 has an old, frozen Chromium (133.0.6943.141)**; EPEL 9: 154.0.8037.92.
 - **Why:** organizations run Chrome or Chromium and sometimes a fixed, older version; one variable each is enough
   (CLAUDE.md app roles: "variants via a lookup dict", "version selection is one variable").
 - **Evidence:** EPEL package and folder: `dnf repoquery chromium` → `chromium 154.0.8037.97-1.el10_2 epel`,

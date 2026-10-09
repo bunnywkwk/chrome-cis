@@ -11,6 +11,10 @@ chrome_cis_channels: [stable, beta, unstable, canary]
 chrome_cis_repo_baseurl: https://dl.google.com/linux/chrome/rpm/stable/x86_64
 chrome_cis_repo_key_url: https://dl.google.com/linux/linux_signing_key.pub
 
+# EPEL for Chromium (D15): the Fedora project's release package and signing key for this EL major version
+chrome_cis_epel_release_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+chrome_cis_epel_key_url: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_facts['distribution_major_version'] }}"
+
 # Per browser: installed package name and the folder the browser reads its managed policies from (D2)
 chrome_cis_browsers:
   chrome:
