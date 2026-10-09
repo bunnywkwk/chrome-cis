@@ -1,0 +1,28 @@
+---
+- name: "SECTION 2 | 2.2 Content settings"
+  ansible.builtin.import_tasks:
+    file: cis_2.2.x.yml
+
+- name: "SECTION 2 | 2.3 Extensions"
+  ansible.builtin.import_tasks:
+    file: cis_2.3.x.yml
+
+- name: "SECTION 2 | 2.4 HTTP authentication"
+  ansible.builtin.import_tasks:
+    file: cis_2.4.x.yml
+
+- name: "SECTION 2 | 2.5 Native Messaging"
+  ansible.builtin.import_tasks:
+    file: cis_2.5.x.yml
+
+- name: "SECTION 2 | 2.6 Password manager"
+  ansible.builtin.import_tasks:
+    file: cis_2.6.x.yml
+
+- name: "SECTION 2 | 2.8 Remote access (Chrome Remote Desktop)"
+  ansible.builtin.import_tasks:
+    file: cis_2.8.x.yml
+
+- name: "SECTION 2 | 2.x Attack Surface Reduction"
+  ansible.builtin.import_tasks:
+    file: cis_2.x.yml

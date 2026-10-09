@@ -36,9 +36,23 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
   declarative: it compares and only changes the file on drift (no separate AUDIT step needed, CLAUDE.md AUDIT→PATCH
   rule 3), and `--check --diff` shows exactly which policies would change.
 - **Evidence:** cis-requirements.md (every applicable rule = one policy + value); D-4 (one file with 101 policies works).
-- **Not adopted** (all four options compared in [implementation-options.md](implementation-options.md)): one task per rule (MongoDB style: there, rules used different modules/restarts); a looping `set_fact` task (logic twice, noisy output); a Jinja template
-  (`to_nice_json` already gives valid, stable JSON).
-
+- **Not adopted** (at the time): one task per rule (MongoDB style: there, rules used different modules/restarts); a
+  looping `set_fact` task; a Jinja template.
+- **Revised 2026-10-09: one task per rule, Lockdown layout** (branch `lockdown`). The team review asked for the
+  Ansible Lockdown / `mongodb8_cis` structure: `tasks/section_<n>/main.yml` + `cis_<n>.x.yml`, one task per CIS rule
+  with the standard name (`"<ID> | PATCH | <CIS title>"`), its own `when:` (level + rule toggle; section switch on the
+  import) and tags (`level1`/`level2`, `automated`/`manual`, `patch`, `rule_<id>`, topic), so a rule can be read, run
+  (`--tags rule_2.3.3`) and skipped (`--skip-tags rule_2.3.3`) on its own.
+  - **How a rule applies:** the rule task evaluates its `when:` and, if it applies, adds its policy to
+    `chrome_cis_policies` with `set_fact` + `combine`. `post.yml` writes **one** file, `chrome_cis.json`, with
+    `ansible.builtin.copy` (declarative: unchanged content = no change, `--check --diff` shows the diff). Same pattern
+    as Lockdown RHEL9-CIS auditd rules (rule tasks set a fact, one task writes the file).
+  - **Full run vs limited run:** `prelim.yml` starts `chrome_cis_policies` **empty on a full run**, so the file always
+    matches the current settings (a rule switched off is removed on the next run); with `--tags`/`--skip-tags` it
+    starts from the **current file**, so only the selected rules change (`ansible_run_tags`, `ansible_skip_tags`).
+  - **Not adopted:** one policy file per rule (`managed/cis_<id>.json`, ~101 files; user preferred one file).
+  - The data-driven variants (rule list + Jinja loop, `set_fact` loop, baseline files) were built and tested on
+    branches `staging`, `staging-option-b`, `staging-option-c`; kept as history.
 ## D4. Levels gate the rules (L1 on, L2 off)
 
 - **Decision:** `chrome_cis_level_1: true`, `chrome_cis_level_2: false`. A rule is written only if its level is on.
@@ -112,6 +126,9 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
   Possible later fix: also list CIS policies set elsewhere while not applied (a few lines in `report.yml`).
 - **Revised 2026-10-07 (before review):** first draft left them unset; changed on the user's decision for visible,
   enforced assurance.
+- **Revised 2026-10-09 (user decision):** the check for other policy files (`conflicts_in_other_files`) was
+  **removed**: it is not a CIS recommendation, so it is out of scope (over-engineered add-on). The "Known gap" above no
+  longer applies; other files in `managed/` are the site's responsibility.
 
 ## D8. Not-applicable rules stay in the list, never written, always reported
 
@@ -135,7 +152,7 @@ Scope: **Google Chrome (`google-chrome-*` RPM) on RHEL 8, 9, 10**, CIS Google Ch
   "$YUM_REPO_FILE" ]`) and only edits lines starting exactly with `baseurl=` (`sed -i -e "s,^baseurl=.*,…"`), which
   ours don't. Container test T3: rerun after install `changed=0`.
 - **Evidence:** D-2, T-C1 (key not imported when installed by hand); W-1 (RPM writes the repo file + daily cron);
-  cron script read on the workstation (google-chrome-stable 154); build-guide results T3.
+  cron script read on the workstation (google-chrome-stable 154); container test T3 (2026-10-07, work-log item 18).
 
 ## D10. Channel by one variable; detect, don't assume; no version gate
 

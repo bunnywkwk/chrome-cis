@@ -19,19 +19,6 @@
       {{ chrome_cis_supported_arch }}.
     quiet: true
 
-- name: "PRELIM | AUDIT | Check the role settings"
-  ansible.builtin.assert:
-    that:
-      - chrome_cis_channel in chrome_cis_channels
-      - chrome_cis_safe_browsing_protection_level in [none, 1, 2]
-      - chrome_cis_variations in [none, 0]
-      - chrome_cis_proxy_mode in [none, 'direct', 'system']
-    fail_msg: >-
-      Check chrome_cis_channel ({{ chrome_cis_channels | join('/') }}),
-      chrome_cis_safe_browsing_protection_level (1 or 2), chrome_cis_variations (0)
-      and chrome_cis_proxy_mode ("direct" or "system").
-    quiet: true
-
 - name: "PRELIM | AUDIT | Gather installed packages"
   ansible.builtin.package_facts:
     manager: rpm
@@ -49,3 +36,18 @@
 
     - name: "PRELIM | AUDIT | Stop when Chrome is not installed and install is off | End this host"
       ansible.builtin.meta: end_host
+
+- name: "PRELIM | AUDIT | Read the current CIS policy file"
+  ansible.builtin.slurp:
+    src: "{{ chrome_cis_policy_dir }}/{{ chrome_cis_policy_file }}"
+  register: discovered_chrome_cis_file
+  failed_when: false
+
+# Full run: start empty, so the file is rebuilt from the current settings (a rule switched off is removed).
+# Run limited by --tags / --skip-tags: start from the current file, so only the selected rules change.
+- name: "PRELIM | AUDIT | Start the policy set"
+  vars:
+    full_run: "{{ ansible_run_tags == ['all'] and ansible_skip_tags | length == 0 }}"
+    current: "{{ discovered_chrome_cis_file.content | b64decode | from_json if discovered_chrome_cis_file.content is defined else {} }}"
+  ansible.builtin.set_fact:
+    chrome_cis_policies: "{{ {} if full_run else current }}"

@@ -12,6 +12,13 @@ chrome_cis_channel: stable       # stable, beta, unstable, canary
 chrome_cis_level_1: true
 chrome_cis_level_2: false
 
+# Sections (Lockdown style): false skips a whole CIS section
+chrome_cis_section1: true   # Enforced Defaults
+chrome_cis_section2: true   # Attack Surface Reduction
+chrome_cis_section3: true   # Privacy
+chrome_cis_section4: true   # Data Loss Prevention
+chrome_cis_section5: true   # Forensics
+
 # Site values (D6): null or [] = report only; set a value and the role writes the policy.
 chrome_cis_safe_browsing_protection_level: null   # 1.2.2: 1 (standard) or 2 (enhanced)
 chrome_cis_variations: null                       # 1.9: 0 (all variations, the CIS value)

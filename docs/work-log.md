@@ -44,3 +44,12 @@ rule's Linux equivalent (the Chrome policy) must be proven on each RHEL version,
 | 24 | Wrote [user-view.md](user-view.md): what a Chrome user notices, risky rules and their effect | evidence from the browser, not only the file | to fill "seen" on the VMs |
 
 **Next:** RHEL 8/10 runs with the 2.16 venv; `chrome://policy` screenshots; mark user-view rows "seen".
+
+## 2026-10-09: rebuild in the Lockdown layout
+
+| # | What we did | Why | Result / where |
+|---|-------------|-----|----------------|
+| 33 | **Decided to rebuild the role in the Ansible Lockdown layout**: `tasks/section_<n>/`, one task per CIS rule; each rule adds its policy, one `chrome_cis.json` written in `post.yml` (user choice, after first picking one file per rule) | team review: follow Lockdown / `mongodb8_cis` best practice; users read, run and skip each rule on its own | branch `lockdown`; [design-decisions.md](design-decisions.md) D3 revised; CLAUDE.md app-roles rule revised |
+| 34 | Removed the data-driven option docs from `lockdown` (`implementation-options.md`, `build-guide.md`, `reference/vars-main-complete.yml`); old branches kept untouched | the options are no longer the design; history stays on its branches | [session-handoff.md](session-handoff.md) rewritten for the rebuild |
+
+**Next:** build guide for prelim/main/post + section 1; you type section 1.
